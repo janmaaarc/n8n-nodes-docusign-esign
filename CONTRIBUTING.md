@@ -1,21 +1,20 @@
 # Contributing to n8n-nodes-docusign
 
-Thank you for your interest in contributing to the DocuSign n8n community node!
+Thank you for your interest in contributing! This document provides guidelines and instructions for contributing.
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 18.x or later
-- npm or pnpm
-- n8n installed locally for testing
-- A DocuSign developer account (free at [developers.docusign.com](https://developers.docusign.com))
+- npm 9.x or later
+- Git
 
 ### Development Setup
 
-1. Clone the repository:
+1. Fork and clone the repository:
    ```bash
-   git clone https://github.com/your-username/n8n-nodes-docusign.git
+   git clone https://github.com/YOUR_USERNAME/n8n-nodes-docusign.git
    cd n8n-nodes-docusign
    ```
 
@@ -24,140 +23,164 @@ Thank you for your interest in contributing to the DocuSign n8n community node!
    npm install
    ```
 
-3. Build the node:
+3. Build the project:
    ```bash
    npm run build
    ```
 
-4. Link to your local n8n installation:
+4. Run tests:
    ```bash
-   npm link
-   cd ~/.n8n/nodes
-   npm link n8n-nodes-docusign
+   npm test
    ```
 
-5. Restart n8n to load the node
+## Development Workflow
 
-### Development Commands
+### Project Structure
 
-```bash
-npm run build     # Build the TypeScript files
-npm run dev       # Watch mode for development
-npm run lint      # Run ESLint
-npm run lint:fix  # Fix linting issues
-npm run test      # Run tests
+```
+n8n-nodes-docusign/
+├── credentials/           # Credential definitions
+│   └── DocuSignApi.credentials.ts
+├── nodes/DocuSign/        # Node implementations
+│   ├── DocuSign.node.ts       # Main node (API operations)
+│   ├── DocuSignTrigger.node.ts  # Webhook trigger
+│   ├── helpers.ts         # API helpers and utilities
+│   ├── constants.ts       # Configuration constants
+│   ├── types.ts           # TypeScript type definitions
+│   └── resources/         # Resource-specific operations
+│       ├── envelope.ts
+│       ├── template.ts
+│       └── index.ts
+├── test/                  # Test files
+└── dist/                  # Compiled output (generated)
 ```
 
-## Code Guidelines
+### Making Changes
 
-### TypeScript
+1. Create a feature branch:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
 
-- Use strict TypeScript (no `any` types unless absolutely necessary)
-- Define interfaces for all data structures
-- Use proper n8n workflow types from `n8n-workflow`
+2. Make your changes following the coding standards below
 
-### Code Style
+3. Run quality checks:
+   ```bash
+   npm run lint        # Check for linting errors
+   npm run typecheck   # Check TypeScript types
+   npm test            # Run tests
+   npm run build       # Ensure it builds
+   ```
 
-- Follow the existing code patterns in the repository
-- Use meaningful variable and function names
-- Add JSDoc comments for exported functions
-- Keep functions focused and under 50 lines when possible
-- Use immutable patterns (don't mutate objects)
+4. Commit your changes using conventional commits:
+   ```bash
+   git commit -m "feat: add new feature"
+   git commit -m "fix: resolve bug in X"
+   git commit -m "docs: update README"
+   ```
 
-### Input Validation
+### Coding Standards
 
-All user inputs must be validated:
-- Email addresses: Use `validateField(name, value, 'email')`
-- UUIDs: Use `validateField(name, value, 'uuid')`
-- Required fields: Use `validateField(name, value, 'required')`
-- Base64: Use `validateField(name, value, 'base64')`
+#### TypeScript
 
-### Error Handling
+- Use strict TypeScript (`strict: true`)
+- Avoid `any` types - use specific types or `unknown`
+- Export types from `types.ts`
+- Use `NodeApiError` for API errors (not generic `Error`)
 
-- Always catch errors and provide meaningful messages
-- Sanitize error messages to avoid leaking credentials
-- Use `NodeApiError` for API-related errors
+#### Naming Conventions
 
-### Security
+- **Files**: camelCase (e.g., `envelope.ts`)
+- **Classes**: PascalCase (e.g., `DocuSign`)
+- **Functions**: camelCase (e.g., `buildSigner`)
+- **Constants**: UPPER_SNAKE_CASE (e.g., `API_BASE_URL_PRODUCTION`)
+- **Parameters**: Use `additionalOptions` for optional fields in create operations
 
-- Never log or expose credentials
-- Validate all URLs to prevent SSRF
-- Use timing-safe comparison for signatures
-- Follow the guidelines in SECURITY.md
+#### Code Style
+
+- Use Prettier for formatting (`npm run format`)
+- Follow ESLint rules (`npm run lint`)
+- Add JSDoc comments to exported functions
+- Keep functions focused and single-purpose
+
+### Testing
+
+- Write tests for new functionality
+- Maintain >70% code coverage
+- Test edge cases and error conditions
+- Run `npm run test:coverage` to check coverage
+
+### Adding a New Resource
+
+1. Create the resource file in `nodes/DocuSign/resources/`:
+   ```typescript
+   // resources/newResource.ts
+   import type { INodeProperties } from 'n8n-workflow';
+
+   export const newResourceOperations: INodeProperties = {
+     // ... operations
+   };
+
+   export const newResourceFields: INodeProperties[] = [
+     // ... fields
+   ];
+   ```
+
+2. Add to `resources/index.ts`
+
+3. Add endpoint mapping to `constants.ts`
+
+4. Add handler in `DocuSign.node.ts`
+
+5. Add types to `types.ts`
+
+6. Write tests
 
 ## Pull Request Process
 
-1. **Fork** the repository and create your branch from `main`
-2. **Write tests** for any new functionality
-3. **Update documentation** (README, CHANGELOG)
-4. **Run linting and tests** before submitting
-5. **Create a pull request** with a clear description
+1. Update documentation if needed
+2. Add tests for new functionality
+3. Ensure all checks pass
+4. Request review from maintainers
+5. Address feedback promptly
 
 ### PR Title Format
 
 Use conventional commit format:
-- `feat: Add envelope resend operation`
-- `fix: Handle rate limit errors correctly`
-- `docs: Update authentication guide`
-- `refactor: Extract validation helpers`
+- `feat: add X resource support`
+- `fix: resolve issue with Y`
+- `docs: update installation guide`
+- `test: add tests for Z`
+- `refactor: simplify helper functions`
 
-### PR Description
+## Reporting Issues
+
+### Bug Reports
 
 Include:
-- What the change does
-- Why the change is needed
-- How to test the change
-- Screenshots if UI changes are involved
+- Node version and n8n version
+- Steps to reproduce
+- Expected vs actual behavior
+- Error messages (if any)
 
-## Testing
+### Feature Requests
 
-### Running Tests
+Include:
+- Use case description
+- Proposed solution
+- Alternatives considered
 
-```bash
-npm run test          # Run all tests
-npm run test:watch    # Watch mode
-npm run test:coverage # Coverage report
-```
+## Code of Conduct
 
-### Writing Tests
-
-- Place tests in the `test/` directory
-- Use descriptive test names
-- Test both success and error cases
-- Mock external API calls
-
-Example:
-```typescript
-describe('validateField', () => {
-  it('should validate email format', () => {
-    expect(() => validateField('Email', 'invalid', 'email')).toThrow();
-    expect(() => validateField('Email', 'test@example.com', 'email')).not.toThrow();
-  });
-});
-```
-
-## Adding New Features
-
-### New Operations
-
-1. Add the operation to `resources/envelope.ts` or `resources/template.ts`
-2. Add required fields with proper `displayOptions`
-3. Create a handler function in `DocuSign.node.ts`
-4. Add the case to the switch statement in `execute()`
-5. Update README and CHANGELOG
-
-### New Trigger Events
-
-1. Add the event to `WEBHOOK_EVENTS` in `DocuSignTrigger.node.ts`
-2. Handle any event-specific data extraction
-3. Update documentation
-
-## Questions?
-
-- Open an issue for bugs or feature requests
-- Check existing issues before creating new ones
-- Be respectful and constructive in discussions
+- Be respectful and inclusive
+- Focus on constructive feedback
+- Help others learn and grow
 
 ## License
 
 By contributing, you agree that your contributions will be licensed under the MIT License.
+
+## Questions?
+
+- Open a [GitHub Issue](https://github.com/janmaaarc/n8n-nodes-docusign/issues)
+- Check existing issues and discussions

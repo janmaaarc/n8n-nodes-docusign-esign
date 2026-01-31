@@ -1,37 +1,61 @@
 # n8n-nodes-docusign
 
-[![npm version](https://badge.fury.io/js/n8n-nodes-docusign.svg)](https://badge.fury.io/js/n8n-nodes-docusign)
+[![npm version](https://img.shields.io/npm/v/n8n-nodes-docusign.svg)](https://www.npmjs.com/package/n8n-nodes-docusign)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![n8n-community](https://img.shields.io/badge/n8n-community%20node-orange)](https://docs.n8n.io/integrations/community-nodes/)
 
-This is an n8n community node for [DocuSign](https://www.docusign.com/) - the world's leading eSignature platform.
-
-Send documents for signature, manage envelopes, and automate your document workflows directly from n8n.
-
-[n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/reference/license/) workflow automation platform.
+An [n8n](https://n8n.io/) community node for [DocuSign](https://www.docusign.com/) - the world's leading eSignature platform for sending documents for signature and managing envelopes.
 
 ## Features
 
-- **Create Envelopes**: Send documents for signature with custom recipient settings
-- **Multiple Signers & Documents**: Support for multiple signers and documents per envelope
-- **Use Templates**: Send envelopes using pre-configured templates
-- **Manage Envelopes**: Get, list, send, resend, void, and manage recipients
-- **Download Documents**: Retrieve signed documents programmatically
-- **Audit Trail**: Access envelope audit events for compliance
-- **Template Management**: List and get template details
-- **Webhook Trigger**: Real-time notifications via DocuSign Connect
-- **Regional Support**: North America, Europe, Australia, and Canada regions
-- **Token Caching**: Efficient JWT token caching to minimize API calls
-- **Rate Limiting**: Automatic retry with exponential backoff for rate limits
-- **Full Pagination**: Retrieve all items when using "Return All" option
-- **Input Validation**: Comprehensive validation for emails, UUIDs, dates, and more
+- **Full Envelope Management** - Create, send, void, and download documents
+- **Multiple Signers & Documents** - Support for multiple signers with routing order and multiple documents per envelope
+- **Template Support** - Create envelopes from pre-configured templates
+- **Webhook Trigger** - Real-time event notifications via DocuSign Connect
+- **Regional Support** - NA, EU, AU, and CA regions for production environments
+- **Rate Limiting** - Built-in retry logic with exponential backoff
+- **Input Validation** - RFC 5322 compliant email validation, secure URL validation (blocks internal networks)
+- **Token Caching** - Efficient JWT token caching with automatic refresh
+- **Type Safety** - Full TypeScript support with comprehensive type definitions
+- **Security Hardened** - HMAC-SHA256 webhook signature verification
 
 ## Installation
 
-Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation.
+### Community Nodes (Recommended)
+
+1. Go to **Settings** > **Community Nodes** in your n8n instance
+2. Select **Install**
+3. Enter `n8n-nodes-docusign`
+4. Click **Install**
+
+### npm
 
 ```bash
 npm install n8n-nodes-docusign
+```
+
+## Credentials
+
+To use this node, you need DocuSign API credentials:
+
+1. Log in to your [DocuSign Admin](https://admin.docusign.com/)
+2. Go to **Settings** → **Apps and Keys**
+3. Create an **Integration Key** (Client ID)
+4. Generate an **RSA Key Pair** and save the private key
+5. Note your **User ID** and **Account ID**
+
+### Granting Consent
+
+Before first use, grant consent for your integration:
+
+**Demo:**
+```
+https://account-d.docusign.com/oauth/auth?response_type=code&scope=signature%20impersonation&client_id=YOUR_INTEGRATION_KEY&redirect_uri=YOUR_REDIRECT_URI
+```
+
+**Production:**
+```
+https://account.docusign.com/oauth/auth?response_type=code&scope=signature%20impersonation&client_id=YOUR_INTEGRATION_KEY&redirect_uri=YOUR_REDIRECT_URI
 ```
 
 ## Nodes
@@ -40,223 +64,205 @@ npm install n8n-nodes-docusign
 
 The main node for interacting with the DocuSign eSignature API.
 
+#### Resources & Operations
+
+| Resource | Operations |
+|----------|------------|
+| **Envelope** | Create, Create From Template, Get, Get Many, Send, Resend, Void, Download Document, Get Recipients, Update Recipients, Get Audit Events |
+| **Template** | Get, Get Many |
+
 ### DocuSign Trigger
 
-Webhook trigger node for receiving real-time DocuSign Connect notifications.
+Webhook trigger node for receiving real-time events via DocuSign Connect.
 
-## Operations
+#### Supported Events
 
-### Envelope
+- `envelope-sent` - Envelope sent to recipients
+- `envelope-delivered` - Envelope delivered to recipient
+- `envelope-completed` - All recipients completed signing
+- `envelope-declined` - Recipient declined to sign
+- `envelope-voided` - Envelope voided
+- `recipient-sent` - Recipient received envelope
+- `recipient-delivered` - Recipient viewed envelope
+- `recipient-completed` - Recipient completed signing
+- `recipient-declined` - Recipient declined
+- `recipient-authenticationfailed` - Recipient failed authentication
+- `template-created` - Template created
+- `template-modified` - Template modified
+- `template-deleted` - Template deleted
 
-| Operation | Description |
-|-----------|-------------|
-| **Create** | Create a new envelope with documents and recipients (supports multiple) |
-| **Create From Template** | Create and send an envelope using a template |
-| **Get** | Get details of a specific envelope |
-| **Get Many** | Get a list of envelopes with filtering and pagination |
-| **Send** | Send a draft envelope for signing |
-| **Resend** | Resend notification emails to recipients |
-| **Void** | Void an envelope to cancel the signing process |
-| **Download Document** | Download signed documents |
-| **Get Recipients** | Get the list of recipients for an envelope |
-| **Update Recipients** | Update recipient email or name |
-| **Get Audit Events** | Get the audit trail for an envelope |
+## Example Workflows
 
-### Template
+### 1. Send Contract for Signature
 
-| Operation | Description |
-|-----------|-------------|
-| **Get** | Get details of a specific template |
-| **Get Many** | Get a list of templates with filtering and pagination |
+```
+HTTP Request (Get Contract) → DocuSign (Create Envelope) → Slack (Notify Team)
+```
 
-### Trigger Events
+Send a document for signature and notify your team.
 
-| Event | Description |
-|-------|-------------|
-| **Envelope Sent** | Triggered when an envelope is sent |
-| **Envelope Delivered** | Triggered when an envelope is delivered |
-| **Envelope Completed** | Triggered when all recipients complete signing |
-| **Envelope Declined** | Triggered when a recipient declines |
-| **Envelope Voided** | Triggered when an envelope is voided |
-| **Recipient Sent/Delivered/Completed/Declined** | Recipient-level events |
-| **Template Created/Modified/Deleted** | Template lifecycle events |
+### 2. Signed Document to Cloud Storage
 
-## Credentials
+```
+DocuSign Trigger (envelope-completed) → DocuSign (Download Document) → Google Drive (Upload)
+```
 
-To use this node, you need DocuSign API credentials:
+Automatically save signed documents to cloud storage.
 
-1. Go to [DocuSign Admin](https://admin.docusign.com/)
-2. Navigate to **Settings > Apps and Keys**
-3. Create an **Integration Key** (Client ID)
-4. Note your **User ID** and **Account ID**
-5. Generate an **RSA Key Pair** and save the private key
+### 3. Multi-Party Agreement
 
-### Required Credentials
+```
+Form Trigger → DocuSign (Create Envelope with Multiple Signers) → Wait for Completion
+```
 
-| Field | Description |
-|-------|-------------|
-| Environment | Production or Demo/Sandbox |
-| Region | NA, EU, AU, or CA (production only) |
-| Integration Key | Your app's Client ID |
-| User ID | GUID of the user to impersonate |
-| Account ID | Your DocuSign Account ID |
-| Private Key | RSA Private Key for JWT auth |
-| Webhook Secret | HMAC secret for webhook verification (optional) |
+Create envelopes with multiple signers using routing order.
 
-### Granting Consent
+### 4. Template-Based Onboarding
 
-Before first use, you must grant consent for your integration:
+```
+New Employee (Webhook) → DocuSign (Create From Template) → HR System (Update)
+```
 
-**Demo:** `https://account-d.docusign.com/oauth/auth?response_type=code&scope=signature%20impersonation&client_id=YOUR_INTEGRATION_KEY&redirect_uri=YOUR_REDIRECT_URI`
+Use templates for standardized documents like onboarding forms.
 
-**Production:** `https://account.docusign.com/oauth/auth?response_type=code&scope=signature%20impersonation&client_id=YOUR_INTEGRATION_KEY&redirect_uri=YOUR_REDIRECT_URI`
+### 5. Envelope Status Dashboard
 
-## Example Usage
+```
+Schedule Trigger → DocuSign (Get Many, status=sent) → Google Sheets (Update)
+```
 
-### Send a Document for Signature
+Track pending envelopes and update a dashboard.
 
-1. Add a **DocuSign** node
-2. Select **Envelope > Create**
-3. Fill in:
-   - Email Subject: "Please sign this contract"
-   - Signer Email: recipient@example.com
-   - Signer Name: John Doe
-   - Document: (binary data or base64)
-   - Document Name: contract.pdf
-4. Enable "Send Immediately"
+## Filtering
 
-### Send to Multiple Signers
+"Get Many" operations support filtering:
 
-1. Add a **DocuSign** node
-2. Select **Envelope > Create**
-3. Fill in primary signer details
-4. In Additional Options:
-   - Add "Additional Signers" with email, name, and routing order
-   - Add "Additional Documents" if needed
+| Filter | Description | Available On |
+|--------|-------------|--------------|
+| `status` | Filter by envelope status | Envelopes |
+| `fromDate` | Start date for date range | Envelopes |
+| `toDate` | End date for date range | Envelopes |
+| `searchText` | Search by subject or recipient | Envelopes, Templates |
+| `folderId` | Filter by folder | Templates |
 
-### Use a Template
+## Security
 
-1. Add a **DocuSign** node
-2. Select **Envelope > Create From Template**
-3. Fill in:
-   - Template ID: (from DocuSign)
-   - Email Subject: "Your document is ready"
-   - Role Name: Signer (must match template role)
-   - Recipient Email/Name
+### Webhook Security
 
-### Set Up Webhooks
+The webhook trigger includes built-in security features:
 
-1. Add a **DocuSign Trigger** node
-2. Select the events you want to receive
-3. Copy the webhook URL
-4. In DocuSign Admin > Connect, create a configuration pointing to this URL
-5. (Recommended) Configure HMAC signing and add the secret to credentials
-
-## Configuration Options
-
-### Envelope Create Options
-
-| Option | Description |
-|--------|-------------|
-| Email Message | Body text of the email |
-| Carbon Copy | Add recipients who receive a copy |
-| Signature Position | X/Y coordinates or anchor text |
-| Send Immediately | Send or save as draft |
-| Additional Signers | Add more signers with routing order |
-| Additional Documents | Include multiple documents |
-
-### Envelope Filters
-
-| Filter | Description |
-|--------|-------------|
-| Status | Filter by envelope status |
-| From/To Date | Date range filter |
-| Search Text | Search by subject or recipient |
-
-## Technical Features
-
-### Token Caching
-
-The node caches JWT access tokens to minimize authentication overhead. Tokens are automatically refreshed 5 minutes before expiration.
-
-### Rate Limiting & Retry
-
-When DocuSign returns a rate limit error (HTTP 429), the node automatically:
-1. Reads the `Retry-After` header
-2. Waits the specified time
-3. Retries the request (up to 3 attempts)
-
-For server errors (5xx), exponential backoff is used.
+- **HMAC-SHA256 Signature Verification** - All webhooks verified using signatures
+- **Timing-Safe Comparison** - Prevents timing attacks
+- **Configurable Verification** - Enable/disable in trigger settings
 
 ### Input Validation
 
-All inputs are validated before making API calls:
-- **Email addresses**: RFC 5322 compliant validation
-- **UUIDs**: Format validation for envelope/template IDs
-- **Base64**: Document content validation
-- **Dates**: ISO 8601 format validation
-- **URLs**: SSRF protection (blocks internal/private network URLs)
+- **Email Validation** - RFC 5322 compliant validation
+- **UUID Validation** - Format validation for envelope/template IDs
+- **Base64 Validation** - Document content validation
+- **URL Validation** - Blocks internal/private network URLs to prevent SSRF attacks:
+  - localhost, 127.0.0.1, 0.0.0.0
+  - Private ranges: 10.x.x.x, 172.16-31.x.x, 192.168.x.x
+  - Link-local: 169.254.x.x (AWS metadata endpoint)
 
-### Pagination
+### Token Security
 
-When using "Return All", the node automatically handles pagination:
-- Follows DocuSign's pagination parameters
-- Configurable timeout (default: 5 minutes)
-- Memory-efficient page-by-page fetching
+- JWT tokens cached in memory only (never persisted)
+- Automatic refresh 5 minutes before expiration
+- RSA keys handled securely via n8n credentials
 
-### Webhook Signature Verification
+## Error Handling
 
-DocuSign Connect webhooks support HMAC-SHA256 signature verification:
-- Configure a secret in DocuSign Connect
-- Add the same secret to your n8n credentials
-- Enable "Verify Signature" in the trigger node
+The node includes built-in error handling with detailed messages:
 
-### Regional Support
+- **Continue on Fail**: Enable to process remaining items even if some fail
+- **Detailed Errors**: Field-level error details for validation failures
+- **Automatic Retry**: Rate limit and server errors automatically retried
 
-The node supports all DocuSign regions:
-- **NA**: North America (default)
-- **EU**: European Union
-- **AU**: Australia
-- **CA**: Canada
+### Error Code Reference
 
-Select your region in the credentials when using production environment.
+| Status Code | Description |
+|-------------|-------------|
+| 400 | Bad Request - Invalid or malformed request |
+| 401 | Unauthorized - Invalid credentials or expired token |
+| 403 | Forbidden - No permission to access resource |
+| 404 | Not Found - Envelope or template does not exist |
+| 429 | Rate Limited - Too many requests (auto-retry) |
+| 500+ | Server Error - DocuSign server issue (auto-retry) |
+
+## Troubleshooting
+
+### "consent_required" Error
+
+1. Visit the consent URL for your environment (demo or production)
+2. Log in with the user account specified in credentials
+3. Grant access to the integration
+
+### "Invalid JWT" Error
+
+1. Verify your RSA private key is complete (including BEGIN/END lines)
+2. Check Integration Key (Client ID) is correct
+3. Ensure User ID matches the account granting consent
+
+### Webhook Not Receiving Events
+
+1. Verify the webhook URL is publicly accessible
+2. Check DocuSign Connect configuration matches n8n URL
+3. Verify HMAC secret matches (if using signature verification)
+4. Check event types are enabled in Connect settings
+
+### Rate Limiting Issues
+
+If you encounter rate limiting (429 errors):
+
+1. The node automatically retries with backoff
+2. Reduce frequency of API calls
+3. Use "Return All" sparingly for large datasets
+4. Consider caching responses where appropriate
 
 ## Development
 
 ```bash
-npm install    # Install dependencies
-npm run build  # Build the node
-npm run dev    # Watch mode
-npm run lint   # Lint code
-npm run test   # Run tests
+# Install dependencies
+npm install
+
+# Build the node
+npm run build
+
+# Watch mode (rebuild on changes)
+npm run dev
+
+# Run tests
+npm test
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run linter
+npm run lint
+
+# Fix linting issues
+npm run lintfix
+
+# Check formatting
+npm run format:check
+
+# Format code
+npm run format
+
+# Type check
+npm run typecheck
 ```
 
-### Project Structure
+## Contributing
 
-```
-n8n-nodes-docusign/
-├── credentials/
-│   └── DocuSignApi.credentials.ts   # JWT auth with token caching
-├── nodes/
-│   └── DocuSign/
-│       ├── DocuSign.node.ts         # Main node with handlers
-│       ├── DocuSignTrigger.node.ts  # Webhook trigger node
-│       ├── helpers.ts               # Validation, API, retry logic
-│       ├── constants.ts             # API URLs, defaults
-│       ├── types.ts                 # TypeScript interfaces
-│       └── resources/               # UI field definitions
-├── test/
-│   └── DocuSign.test.ts             # Unit tests
-└── package.json
-```
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## Security
-
-- JWT tokens are cached in memory (not persisted)
-- Error messages are sanitized to prevent credential leakage
-- Input validation prevents injection attacks
-- SSRF protection blocks internal network URLs
-- Webhook signatures verified using timing-safe comparison
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## Resources
 
@@ -266,6 +272,26 @@ n8n-nodes-docusign/
 - [DocuSign Connect Guide](https://developers.docusign.com/platform/webhooks/connect/)
 - [n8n Community Nodes Documentation](https://docs.n8n.io/integrations/community-nodes/)
 
+## Changelog
+
+### v0.1.0
+
+**Initial Release:**
+- Full envelope management (create, send, void, download, recipients, audit)
+- Template operations (get, list)
+- Multiple signers and documents support
+- DocuSign Trigger for real-time webhook events
+- Regional support (NA, EU, AU, CA)
+- JWT authentication with token caching
+- Rate limiting with automatic retry
+- Input validation (email, UUID, base64, URL with SSRF protection)
+- HMAC-SHA256 webhook signature verification
+- 61 tests with comprehensive coverage
+
 ## License
 
 [MIT](LICENSE)
+
+---
+
+Made with ✍️ by [Jan Marc Coloma](https://github.com/janmaaarc)

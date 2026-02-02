@@ -4,7 +4,9 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.0.x   | :white_check_mark: |
+| 0.2.x   | :white_check_mark: |
+| 0.1.x   | :white_check_mark: |
+| 0.0.x   | :x:                |
 
 ## Reporting a Vulnerability
 
@@ -35,9 +37,11 @@ This node implements several security measures:
 
 ### Webhook Security
 
-- **Mandatory Signature Verification**: All webhooks are verified using HMAC-SHA256 signatures
+- **HMAC-SHA256 Signature Verification**: All webhooks are verified using HMAC-SHA256 signatures
+- **Replay Attack Protection**: Rejects webhook requests older than 5 minutes to prevent replay attacks
 - **Timing-Safe Comparison**: Signature verification uses `crypto.timingSafeEqual` to prevent timing attacks
 - **Secret Management**: Webhook secrets stored securely in n8n credentials
+- **Configurable Verification**: Both signature verification and replay protection can be toggled in trigger settings
 
 ### Input Validation
 
@@ -81,6 +85,15 @@ This node implements several security measures:
    - Use production only for live workflows
 
 ## Security Changelog
+
+### v0.2.0
+- No security-related changes (feature release)
+- Maintained all existing security features
+
+### v0.1.0
+- Added replay attack protection for webhooks (rejects requests older than 5 minutes)
+- Made signature verification and replay protection configurable via toggle
+- Improved type safety with reduced unnecessary type assertions
 
 ### v0.0.4
 - Initial release with comprehensive security features

@@ -1,6 +1,6 @@
 {
-  "name": "n8n-docusign-node",
-  "version": "0.4.0",
+  "name": "n8n-nodes-docusign-esign",
+  "version": "0.4.1",
   "description": "n8n community node for DocuSign eSignature - send documents for signature and manage envelopes",
   "keywords": [
     "n8n-community-node-package",
@@ -14,14 +14,14 @@
     "signing"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/janmaaarc/n8n-docusign-node",
+  "homepage": "https://github.com/janmaaarc/n8n-nodes-docusign-esign",
   "author": {
     "name": "Jan Marc Coloma",
     "email": "janmarccolomaaa@gmail.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/janmaaarc/n8n-docusign-node.git"
+    "url": "https://github.com/janmaaarc/n8n-nodes-docusign-esign.git"
   },
   "main": "dist/index.js",
   "scripts": {

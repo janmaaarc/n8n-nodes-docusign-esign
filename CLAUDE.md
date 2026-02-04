@@ -1,4 +1,4 @@
-# n8n-docusign-node
+# n8n-nodes-docusign-esign
 
 ## Project Overview
 

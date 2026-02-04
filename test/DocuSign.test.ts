@@ -1536,3 +1536,167 @@ describe('Merge Fields Feature', () => {
     expect(fontValues).toContain('Size7');
   });
 });
+
+// ============================================================================
+// Envelope Options Tests
+// ============================================================================
+
+describe('Envelope Options', () => {
+  it('should have correct default values for envelope options', async () => {
+    const { envelopeFields } = await import('../nodes/DocuSign/resources/envelope');
+
+    const additionalOptions = envelopeFields.find(f => f.name === 'additionalOptions');
+    const options = additionalOptions?.options as Array<{ name: string; default?: unknown }>;
+
+    const allowMarkup = options?.find(o => o.name === 'allowMarkup');
+    const allowReassign = options?.find(o => o.name === 'allowReassign');
+    const brandId = options?.find(o => o.name === 'brandId');
+    const enableWetSign = options?.find(o => o.name === 'enableWetSign');
+    const enforceSignerVisibility = options?.find(o => o.name === 'enforceSignerVisibility');
+
+    expect(allowMarkup?.default).toBe(false);
+    expect(allowReassign?.default).toBe(true);
+    expect(brandId?.default).toBe('');
+    expect(enableWetSign?.default).toBe(false);
+    expect(enforceSignerVisibility?.default).toBe(false);
+  });
+
+  it('should have correct types for envelope options', async () => {
+    const { envelopeFields } = await import('../nodes/DocuSign/resources/envelope');
+
+    const additionalOptions = envelopeFields.find(f => f.name === 'additionalOptions');
+    const options = additionalOptions?.options as Array<{ name: string; type?: string }>;
+
+    const allowMarkup = options?.find(o => o.name === 'allowMarkup');
+    const allowReassign = options?.find(o => o.name === 'allowReassign');
+    const brandId = options?.find(o => o.name === 'brandId');
+    const enableWetSign = options?.find(o => o.name === 'enableWetSign');
+    const enforceSignerVisibility = options?.find(o => o.name === 'enforceSignerVisibility');
+
+    expect(allowMarkup?.type).toBe('boolean');
+    expect(allowReassign?.type).toBe('boolean');
+    expect(brandId?.type).toBe('string');
+    expect(enableWetSign?.type).toBe('boolean');
+    expect(enforceSignerVisibility?.type).toBe('boolean');
+  });
+
+  it('should have descriptions for all envelope options', async () => {
+    const { envelopeFields } = await import('../nodes/DocuSign/resources/envelope');
+
+    const additionalOptions = envelopeFields.find(f => f.name === 'additionalOptions');
+    const options = additionalOptions?.options as Array<{ name: string; description?: string }>;
+
+    const optionNames = ['allowMarkup', 'allowReassign', 'brandId', 'enableWetSign', 'enforceSignerVisibility'];
+
+    for (const name of optionNames) {
+      const option = options?.find(o => o.name === name);
+      expect(option?.description).toBeDefined();
+      expect(option?.description?.length).toBeGreaterThan(10);
+    }
+  });
+});
+
+// ============================================================================
+// Merge Fields Edge Cases Tests
+// ============================================================================
+
+describe('Merge Fields Edge Cases', () => {
+  it('should have placeholder field marked as required', async () => {
+    const { envelopeFields } = await import('../nodes/DocuSign/resources/envelope');
+
+    const additionalOptions = envelopeFields.find(f => f.name === 'additionalOptions');
+    const options = additionalOptions?.options as Array<{ name: string }>;
+    const mergeFieldsOption = options?.find(o => o.name === 'mergeFields');
+
+    const innerOptions = (mergeFieldsOption as { options?: Array<{ name: string; values?: Array<{ name: string; required?: boolean }> }> })?.options;
+    const fieldsOption = innerOptions?.find(o => o.name === 'fields');
+    const values = fieldsOption?.values;
+    const placeholderField = values?.find(v => v.name === 'placeholder');
+
+    expect(placeholderField?.required).toBe(true);
+  });
+
+  it('should have value field marked as required', async () => {
+    const { envelopeFields } = await import('../nodes/DocuSign/resources/envelope');
+
+    const additionalOptions = envelopeFields.find(f => f.name === 'additionalOptions');
+    const options = additionalOptions?.options as Array<{ name: string }>;
+    const mergeFieldsOption = options?.find(o => o.name === 'mergeFields');
+
+    const innerOptions = (mergeFieldsOption as { options?: Array<{ name: string; values?: Array<{ name: string; required?: boolean }> }> })?.options;
+    const fieldsOption = innerOptions?.find(o => o.name === 'fields');
+    const values = fieldsOption?.values;
+    const valueField = values?.find(v => v.name === 'value');
+
+    expect(valueField?.required).toBe(true);
+  });
+
+  it('should have default font size of Size12', async () => {
+    const { envelopeFields } = await import('../nodes/DocuSign/resources/envelope');
+
+    const additionalOptions = envelopeFields.find(f => f.name === 'additionalOptions');
+    const options = additionalOptions?.options as Array<{ name: string }>;
+    const mergeFieldsOption = options?.find(o => o.name === 'mergeFields');
+
+    const innerOptions = (mergeFieldsOption as { options?: Array<{ name: string; values?: Array<{ name: string; default?: string }> }> })?.options;
+    const fieldsOption = innerOptions?.find(o => o.name === 'fields');
+    const values = fieldsOption?.values;
+    const fontSizeField = values?.find(v => v.name === 'fontSize');
+
+    expect(fontSizeField?.default).toBe('Size12');
+  });
+
+  it('should have placeholder example in placeholder field', async () => {
+    const { envelopeFields } = await import('../nodes/DocuSign/resources/envelope');
+
+    const additionalOptions = envelopeFields.find(f => f.name === 'additionalOptions');
+    const options = additionalOptions?.options as Array<{ name: string }>;
+    const mergeFieldsOption = options?.find(o => o.name === 'mergeFields');
+
+    const innerOptions = (mergeFieldsOption as { options?: Array<{ name: string; values?: Array<{ name: string; placeholder?: string }> }> })?.options;
+    const fieldsOption = innerOptions?.find(o => o.name === 'fields');
+    const values = fieldsOption?.values;
+    const placeholderField = values?.find(v => v.name === 'placeholder');
+
+    expect(placeholderField?.placeholder).toBe('{{FirstName}}');
+  });
+
+  it('should support multiple values in merge fields', async () => {
+    const { envelopeFields } = await import('../nodes/DocuSign/resources/envelope');
+
+    const additionalOptions = envelopeFields.find(f => f.name === 'additionalOptions');
+    const options = additionalOptions?.options as Array<{ name: string; typeOptions?: { multipleValues?: boolean } }>;
+    const mergeFieldsOption = options?.find(o => o.name === 'mergeFields');
+
+    expect(mergeFieldsOption?.typeOptions?.multipleValues).toBe(true);
+  });
+
+  it('should have all font size options from Size7 to Size72', async () => {
+    const { envelopeFields } = await import('../nodes/DocuSign/resources/envelope');
+
+    const additionalOptions = envelopeFields.find(f => f.name === 'additionalOptions');
+    const options = additionalOptions?.options as Array<{ name: string }>;
+    const mergeFieldsOption = options?.find(o => o.name === 'mergeFields');
+
+    const innerOptions = (mergeFieldsOption as { options?: Array<{ name: string; values?: Array<{ name: string; options?: Array<{ value: string }> }> }> })?.options;
+    const fieldsOption = innerOptions?.find(o => o.name === 'fields');
+    const values = fieldsOption?.values;
+    const fontSizeField = values?.find(v => v.name === 'fontSize');
+
+    const fontOptions = (fontSizeField as { options?: Array<{ value: string }> })?.options;
+    const fontValues = fontOptions?.map(o => o.value) || [];
+
+    // Check boundary values
+    expect(fontValues).toContain('Size7');
+    expect(fontValues).toContain('Size72');
+
+    // Check common sizes
+    expect(fontValues).toContain('Size10');
+    expect(fontValues).toContain('Size12');
+    expect(fontValues).toContain('Size14');
+    expect(fontValues).toContain('Size18');
+    expect(fontValues).toContain('Size24');
+    expect(fontValues).toContain('Size36');
+    expect(fontValues).toContain('Size48');
+  });
+});

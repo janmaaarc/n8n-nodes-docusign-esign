@@ -88,6 +88,10 @@ This node implements several security measures:
 
 ## Security Changelog
 
+### v0.4.1
+- No security-related changes (maintenance release)
+- Maintained all existing security features
+
 ### v0.4.0
 - No security-related changes (feature release)
 - Maintained all existing security features

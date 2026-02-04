@@ -1,9 +1,9 @@
-# n8n-docusign-node
+# n8n-nodes-docusign-esign
 
-[![npm version](https://img.shields.io/npm/v/n8n-docusign-node.svg)](https://www.npmjs.com/package/n8n-docusign-node)
+[![npm version](https://img.shields.io/npm/v/n8n-nodes-docusign-esign.svg)](https://www.npmjs.com/package/n8n-nodes-docusign-esign)
 [![n8n-community](https://img.shields.io/badge/n8n-community%20node-orange)](https://docs.n8n.io/integrations/community-nodes/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![CI](https://github.com/janmaaarc/n8n-docusign-node/actions/workflows/ci.yml/badge.svg)](https://github.com/janmaaarc/n8n-docusign-node/actions/workflows/ci.yml)
+[![CI](https://github.com/janmaaarc/n8n-nodes-docusign-esign/actions/workflows/ci.yml/badge.svg)](https://github.com/janmaaarc/n8n-nodes-docusign-esign/actions/workflows/ci.yml)
 
 An [n8n](https://n8n.io/) community node for [DocuSign](https://www.docusign.com/) - the world's leading eSignature platform for sending documents for signature and managing envelopes.
 
@@ -42,13 +42,13 @@ Start with a free [DocuSign Developer Account](https://developers.docusign.com/)
 
 1. Go to **Settings** > **Community Nodes** in your n8n instance
 2. Select **Install**
-3. Enter `n8n-docusign-node`
+3. Enter `n8n-nodes-docusign-esign`
 4. Click **Install**
 
 ### npm
 
 ```bash
-npm install n8n-docusign-node
+npm install n8n-nodes-docusign-esign
 ```
 
 ## Credentials
@@ -324,6 +324,12 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 - [n8n Community Nodes Documentation](https://docs.n8n.io/integrations/community-nodes/)
 
 ## Changelog
+
+### v0.4.1
+
+**Maintenance:**
+- Renamed package to `n8n-nodes-docusign-esign` for n8n Community Nodes compatibility
+- Improved test coverage (140 tests)
 
 ### v0.4.0
 

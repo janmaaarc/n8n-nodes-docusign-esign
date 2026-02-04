@@ -4,6 +4,7 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
+| 0.4.x   | :white_check_mark: |
 | 0.3.x   | :white_check_mark: |
 | 0.2.x   | :white_check_mark: |
 | 0.1.x   | :white_check_mark: |
@@ -86,6 +87,10 @@ This node implements several security measures:
    - Use production only for live workflows
 
 ## Security Changelog
+
+### v0.4.0
+- No security-related changes (feature release)
+- Maintained all existing security features
 
 ### v0.3.0
 - No security-related changes (feature release)

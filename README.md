@@ -99,6 +99,11 @@ The main node for interacting with the DocuSign eSignature API.
 | **Custom Fields** | Add metadata fields for tracking |
 | **Additional Tabs** | Initial, date, text, checkbox, company, title fields |
 | **Anchor Tags** | Position signature fields using text anchors |
+| **Allow Markup** | Let signers add comments and annotations |
+| **Allow Reassign** | Let signers reassign to another person |
+| **Brand ID** | Use custom branding for the envelope |
+| **Enable Wet Sign** | Allow print-and-sign option |
+| **Enforce Signer Visibility** | Signers only see their own fields |
 
 ### DocuSign Trigger
 
@@ -319,6 +324,16 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 - [n8n Community Nodes Documentation](https://docs.n8n.io/integrations/community-nodes/)
 
 ## Changelog
+
+### v0.4.0
+
+**New Features:**
+- **Additional Envelope Options** - More control over envelope behavior:
+  - Allow Markup - Let signers annotate documents
+  - Allow Reassign - Let signers reassign to others
+  - Brand ID - Use custom branding
+  - Enable Wet Sign - Allow print-and-sign
+  - Enforce Signer Visibility - Signers only see their fields
 
 ### v0.3.0
 

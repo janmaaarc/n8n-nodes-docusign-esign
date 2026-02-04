@@ -240,6 +240,23 @@ async function handleEnvelopeCreate(
     envelope.emailBlurb = additionalOptions.emailBlurb;
   }
 
+  // Add envelope-level options
+  if (additionalOptions.allowMarkup !== undefined) {
+    envelope.allowMarkup = additionalOptions.allowMarkup ? 'true' : 'false';
+  }
+  if (additionalOptions.allowReassign !== undefined) {
+    envelope.allowReassign = additionalOptions.allowReassign ? 'true' : 'false';
+  }
+  if (additionalOptions.brandId) {
+    envelope.brandId = additionalOptions.brandId;
+  }
+  if (additionalOptions.enableWetSign !== undefined) {
+    envelope.enableWetSign = additionalOptions.enableWetSign ? 'true' : 'false';
+  }
+  if (additionalOptions.enforceSignerVisibility !== undefined) {
+    envelope.enforceSignerVisibility = additionalOptions.enforceSignerVisibility ? 'true' : 'false';
+  }
+
   // Add custom fields if specified
   const customFieldsData = additionalOptions.customFields as IDataObject | undefined;
   if (customFieldsData?.textFields) {

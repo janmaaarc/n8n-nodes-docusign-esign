@@ -715,6 +715,21 @@ describe('Envelope Resource', () => {
     expect(fieldNames).toContain('signerEmail');
     expect(fieldNames).toContain('envelopeId');
   });
+
+  it('should have envelope-level options in additionalOptions', async () => {
+    const { envelopeFields } = await import('../nodes/DocuSign/resources/envelope');
+    const additionalOptions = envelopeFields.find(f => f.name === 'additionalOptions');
+    expect(additionalOptions).toBeDefined();
+
+    const options = additionalOptions?.options as Array<{ name: string }>;
+    const optionNames = options?.map(o => o.name);
+
+    expect(optionNames).toContain('allowMarkup');
+    expect(optionNames).toContain('allowReassign');
+    expect(optionNames).toContain('brandId');
+    expect(optionNames).toContain('enableWetSign');
+    expect(optionNames).toContain('enforceSignerVisibility');
+  });
 });
 
 // ============================================================================

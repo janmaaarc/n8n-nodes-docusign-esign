@@ -1663,6 +1663,1011 @@ async function handleBrandDelete(
 }
 
 // ============================================================================
+// Recipient Tabs Handlers
+// ============================================================================
+
+/**
+ * Handles getting tabs for a specific recipient in an envelope.
+ */
+async function handleRecipientTabsGet(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  const recipientId = ctx.getNodeParameter('recipientId', itemIndex) as string;
+
+  validateField('Envelope ID', envelopeId, 'uuid');
+  validateField('Recipient ID', recipientId, 'required');
+
+  return await docuSignApiRequest.call(
+    ctx,
+    'GET',
+    `/envelopes/${envelopeId}/recipients/${recipientId}/tabs`,
+  );
+}
+
+/**
+ * Handles updating tabs for a specific recipient in an envelope.
+ */
+async function handleRecipientTabsUpdate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  const recipientId = ctx.getNodeParameter('recipientId', itemIndex) as string;
+  const tabsData = ctx.getNodeParameter('tabs', itemIndex, {}) as IDataObject;
+
+  validateField('Envelope ID', envelopeId, 'uuid');
+  validateField('Recipient ID', recipientId, 'required');
+
+  const body: IDataObject = {};
+
+  if (tabsData.textTabs) {
+    const textTabsData = tabsData.textTabs as IDataObject;
+    if (textTabsData.tab) {
+      body.textTabs = (textTabsData.tab as IDataObject[]).map((t) => ({
+        tabLabel: t.tabLabel,
+        value: t.value,
+      }));
+    }
+  }
+
+  if (tabsData.checkboxTabs) {
+    const checkboxTabsData = tabsData.checkboxTabs as IDataObject;
+    if (checkboxTabsData.tab) {
+      body.checkboxTabs = (checkboxTabsData.tab as IDataObject[]).map((t) => ({
+        tabLabel: t.tabLabel,
+        selected: t.selected ? 'true' : 'false',
+      }));
+    }
+  }
+
+  return await docuSignApiRequest.call(
+    ctx,
+    'PUT',
+    `/envelopes/${envelopeId}/recipients/${recipientId}/tabs`,
+    body,
+  );
+}
+
+// ============================================================================
+// Comments Handlers
+// ============================================================================
+
+/**
+ * Handles creating a comment on an envelope.
+ */
+async function handleCommentsCreate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  const commentText = ctx.getNodeParameter('commentText', itemIndex) as string;
+  const additionalOptions = ctx.getNodeParameter('additionalOptions', itemIndex, {}) as IDataObject;
+
+  validateField('Envelope ID', envelopeId, 'uuid');
+  validateField('Comment Text', commentText, 'required');
+
+  const comment: IDataObject = { text: commentText };
+
+  if (additionalOptions.threadId) {
+    comment.threadId = additionalOptions.threadId;
+  }
+
+  return await docuSignApiRequest.call(
+    ctx,
+    'POST',
+    `/envelopes/${envelopeId}/comments`,
+    { comments: [comment] },
+  );
+}
+
+/**
+ * Handles getting comments for an envelope.
+ */
+async function handleCommentsGetAll(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject[] | IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  const returnAll = ctx.getNodeParameter('returnAll', itemIndex) as boolean;
+
+  validateField('Envelope ID', envelopeId, 'uuid');
+
+  if (returnAll) {
+    return await docuSignApiRequestAllItems.call(
+      ctx,
+      'GET',
+      `/envelopes/${envelopeId}/comments`,
+      'comments',
+      {},
+    );
+  }
+
+  const limit = ctx.getNodeParameter('limit', itemIndex);
+  const response = await docuSignApiRequest.call(
+    ctx,
+    'GET',
+    `/envelopes/${envelopeId}/comments`,
+    undefined,
+    { count: limit },
+  );
+  return (response.comments as IDataObject[]) || [];
+}
+
+// ============================================================================
+// Account User Handlers
+// ============================================================================
+
+/**
+ * Handles creating a new account user.
+ */
+async function handleAccountUserCreate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const email = ctx.getNodeParameter('email', itemIndex) as string;
+  const userName = ctx.getNodeParameter('userName', itemIndex) as string;
+  const additionalOptions = ctx.getNodeParameter('additionalOptions', itemIndex, {}) as IDataObject;
+
+  validateField('Email', email, 'email');
+  validateField('User Name', userName, 'required');
+
+  const user: IDataObject = { email, userName };
+
+  if (additionalOptions.activationAccessCode) {
+    user.activationAccessCode = additionalOptions.activationAccessCode;
+  }
+  if (additionalOptions.company) {
+    user.company = additionalOptions.company;
+  }
+  if (additionalOptions.jobTitle) {
+    user.jobTitle = additionalOptions.jobTitle;
+  }
+
+  const response = await docuSignApiRequest.call(ctx, 'POST', '/users', {
+    newUsers: [user],
+  });
+
+  const newUsers = (response.newUsers as IDataObject[]) || [];
+  return newUsers[0] || response;
+}
+
+/**
+ * Handles getting a single account user.
+ */
+async function handleAccountUserGet(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const userId = ctx.getNodeParameter('userId', itemIndex) as string;
+
+  validateField('User ID', userId, 'uuid');
+
+  return await docuSignApiRequest.call(ctx, 'GET', `/users/${userId}`);
+}
+
+/**
+ * Handles getting all account users.
+ */
+async function handleAccountUserGetAll(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject[]> {
+  const returnAll = ctx.getNodeParameter('returnAll', itemIndex) as boolean;
+  const filters = ctx.getNodeParameter('filters', itemIndex, {});
+  const qs: Record<string, string | number> = {};
+
+  if (filters.status) {
+    qs.status = filters.status as string;
+  }
+  if (filters.email) {
+    qs.email = filters.email as string;
+  }
+
+  if (returnAll) {
+    return await docuSignApiRequestAllItems.call(ctx, 'GET', '/users', 'users', qs);
+  }
+
+  const limit = ctx.getNodeParameter('limit', itemIndex);
+  qs.count = limit;
+  const response = await docuSignApiRequest.call(ctx, 'GET', '/users', undefined, qs);
+  return (response.users as IDataObject[]) || [];
+}
+
+/**
+ * Handles updating an account user.
+ */
+async function handleAccountUserUpdate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const userId = ctx.getNodeParameter('userId', itemIndex) as string;
+  const updateFields = ctx.getNodeParameter('updateFields', itemIndex, {});
+
+  validateField('User ID', userId, 'uuid');
+
+  if (!updateFields.email && !updateFields.userName && !updateFields.company && !updateFields.jobTitle) {
+    throw new Error('At least one update field is required');
+  }
+
+  if (updateFields.email) {
+    validateField('Email', updateFields.email as string, 'email');
+  }
+
+  const body: IDataObject = {};
+  if (updateFields.email) {
+    body.email = updateFields.email;
+  }
+  if (updateFields.userName) {
+    body.userName = updateFields.userName;
+  }
+  if (updateFields.company) {
+    body.company = updateFields.company;
+  }
+  if (updateFields.jobTitle) {
+    body.jobTitle = updateFields.jobTitle;
+  }
+
+  return await docuSignApiRequest.call(ctx, 'PUT', `/users/${userId}`, body);
+}
+
+/**
+ * Handles deleting an account user.
+ */
+async function handleAccountUserDelete(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const userId = ctx.getNodeParameter('userId', itemIndex) as string;
+
+  validateField('User ID', userId, 'uuid');
+
+  return await docuSignApiRequest.call(ctx, 'DELETE', '/users', {
+    users: [{ userId }],
+  });
+}
+
+// ============================================================================
+// Account Group Handlers
+// ============================================================================
+
+/**
+ * Handles creating a permission group.
+ */
+async function handleAccountGroupCreate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const groupName = ctx.getNodeParameter('groupName', itemIndex) as string;
+  const additionalOptions = ctx.getNodeParameter('additionalOptions', itemIndex, {}) as IDataObject;
+
+  validateField('Group Name', groupName, 'required');
+
+  const group: IDataObject = { groupName };
+
+  if (additionalOptions.permissionProfileId) {
+    group.permissionProfileId = additionalOptions.permissionProfileId;
+  }
+
+  const response = await docuSignApiRequest.call(ctx, 'POST', '/groups', {
+    groups: [group],
+  });
+
+  const groups = (response.groups as IDataObject[]) || [];
+  return groups[0] || response;
+}
+
+/**
+ * Handles getting all permission groups.
+ */
+async function handleAccountGroupGetAll(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject[]> {
+  const returnAll = ctx.getNodeParameter('returnAll', itemIndex) as boolean;
+
+  if (returnAll) {
+    return await docuSignApiRequestAllItems.call(ctx, 'GET', '/groups', 'groups', {});
+  }
+
+  const limit = ctx.getNodeParameter('limit', itemIndex);
+  const response = await docuSignApiRequest.call(ctx, 'GET', '/groups', undefined, {
+    count: limit,
+  });
+  return (response.groups as IDataObject[]) || [];
+}
+
+/**
+ * Handles updating a permission group.
+ */
+async function handleAccountGroupUpdate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const groupId = ctx.getNodeParameter('groupId', itemIndex) as string;
+  const updateFields = ctx.getNodeParameter('updateFields', itemIndex, {});
+
+  validateField('Group ID', groupId, 'required');
+
+  if (!updateFields.groupName && !updateFields.permissionProfileId) {
+    throw new Error('At least one update field is required');
+  }
+
+  const group: IDataObject = { groupId };
+  if (updateFields.groupName) {
+    group.groupName = updateFields.groupName;
+  }
+  if (updateFields.permissionProfileId) {
+    group.permissionProfileId = updateFields.permissionProfileId;
+  }
+
+  const response = await docuSignApiRequest.call(ctx, 'PUT', '/groups', {
+    groups: [group],
+  });
+  const groups = (response.groups as IDataObject[]) || [];
+  return groups[0] || response;
+}
+
+/**
+ * Handles deleting a permission group.
+ */
+async function handleAccountGroupDelete(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const groupId = ctx.getNodeParameter('groupId', itemIndex) as string;
+
+  validateField('Group ID', groupId, 'required');
+
+  return await docuSignApiRequest.call(ctx, 'DELETE', '/groups', {
+    groups: [{ groupId }],
+  });
+}
+
+// ============================================================================
+// Connect Configuration Handlers
+// ============================================================================
+
+/**
+ * Handles creating a Connect configuration.
+ */
+async function handleConnectConfigCreate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const name = ctx.getNodeParameter('name', itemIndex) as string;
+  const urlToPublishTo = ctx.getNodeParameter('urlToPublishTo', itemIndex) as string;
+  const events = ctx.getNodeParameter('events', itemIndex) as string[];
+  const additionalOptions = ctx.getNodeParameter('additionalOptions', itemIndex, {}) as IDataObject;
+
+  validateField('Configuration Name', name, 'required');
+  validateField('URL to Publish', urlToPublishTo, 'url');
+
+  const body: IDataObject = {
+    name,
+    urlToPublishTo,
+    allUsers: 'true',
+    allowEnvelopePublish: 'true',
+    envelopeEvents: events
+      .filter((e) => e.startsWith('envelope-'))
+      .map((e) => ({ envelopeEventStatusCode: e })),
+    recipientEvents: events
+      .filter((e) => e.startsWith('recipient-'))
+      .map((e) => ({ recipientEventStatusCode: e })),
+  };
+
+  if (additionalOptions.includeDocuments !== undefined) {
+    body.includeDocumentFields = additionalOptions.includeDocuments ? 'true' : 'false';
+  }
+  if (additionalOptions.includeRecipients !== undefined) {
+    body.includeRecipients = additionalOptions.includeRecipients ? 'true' : 'false';
+  }
+  if (additionalOptions.requiresAcknowledgement !== undefined) {
+    body.requiresAcknowledgement = additionalOptions.requiresAcknowledgement ? 'true' : 'false';
+  }
+
+  return await docuSignApiRequest.call(ctx, 'POST', '/connect', body);
+}
+
+/**
+ * Handles getting a single Connect configuration.
+ */
+async function handleConnectConfigGet(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const connectId = ctx.getNodeParameter('connectId', itemIndex) as string;
+
+  validateField('Connect ID', connectId, 'required');
+
+  return await docuSignApiRequest.call(ctx, 'GET', `/connect/${connectId}`);
+}
+
+/**
+ * Handles getting all Connect configurations.
+ */
+async function handleConnectConfigGetAll(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject[]> {
+  const returnAll = ctx.getNodeParameter('returnAll', itemIndex) as boolean;
+
+  if (returnAll) {
+    return await docuSignApiRequestAllItems.call(
+      ctx,
+      'GET',
+      '/connect',
+      'configurations',
+      {},
+    );
+  }
+
+  const limit = ctx.getNodeParameter('limit', itemIndex);
+  const response = await docuSignApiRequest.call(ctx, 'GET', '/connect', undefined, {
+    count: limit,
+  });
+  return (response.configurations as IDataObject[]) || [];
+}
+
+/**
+ * Handles updating a Connect configuration.
+ */
+async function handleConnectConfigUpdate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const connectId = ctx.getNodeParameter('connectId', itemIndex) as string;
+  const updateFields = ctx.getNodeParameter('updateFields', itemIndex, {});
+
+  validateField('Connect ID', connectId, 'required');
+
+  if (!updateFields.name && !updateFields.urlToPublishTo && updateFields.allowEnvelopePublish === undefined) {
+    throw new Error('At least one update field is required');
+  }
+
+  const body: IDataObject = { connectId };
+  if (updateFields.name) {
+    body.name = updateFields.name;
+  }
+  if (updateFields.urlToPublishTo) {
+    validateField('URL to Publish', updateFields.urlToPublishTo as string, 'url');
+    body.urlToPublishTo = updateFields.urlToPublishTo;
+  }
+  if (updateFields.allowEnvelopePublish !== undefined) {
+    body.allowEnvelopePublish = updateFields.allowEnvelopePublish ? 'true' : 'false';
+  }
+
+  return await docuSignApiRequest.call(ctx, 'PUT', '/connect', body);
+}
+
+/**
+ * Handles deleting a Connect configuration.
+ */
+async function handleConnectConfigDelete(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const connectId = ctx.getNodeParameter('connectId', itemIndex) as string;
+
+  validateField('Connect ID', connectId, 'required');
+
+  return await docuSignApiRequest.call(ctx, 'DELETE', `/connect/${connectId}`);
+}
+
+// ============================================================================
+// Composite Template Handlers
+// ============================================================================
+
+/**
+ * Handles creating an envelope using composite templates.
+ */
+async function handleCompositeTemplateCreateEnvelope(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const emailSubject = ctx.getNodeParameter('emailSubject', itemIndex) as string;
+  const serverTemplateIds = ctx.getNodeParameter('serverTemplateIds', itemIndex) as string;
+  const signerEmail = ctx.getNodeParameter('signerEmail', itemIndex) as string;
+  const signerName = ctx.getNodeParameter('signerName', itemIndex) as string;
+  const roleName = ctx.getNodeParameter('roleName', itemIndex) as string;
+  const additionalOptions = ctx.getNodeParameter('additionalOptions', itemIndex, {}) as IDataObject;
+
+  validateField('Email Subject', emailSubject, 'required');
+  validateField('Server Template IDs', serverTemplateIds, 'required');
+  validateField('Signer Email', signerEmail, 'email');
+  validateField('Signer Name', signerName, 'required');
+
+  const templateIds = serverTemplateIds
+    .split(',')
+    .map((id) => id.trim())
+    .filter(Boolean);
+
+  for (const id of templateIds) {
+    validateField('Template ID', id, 'uuid');
+  }
+
+  const compositeTemplates = templateIds.map((templateId, index) => ({
+    compositeTemplateId: String(index + 1),
+    serverTemplates: [{ sequence: '1', templateId }],
+    inlineTemplates: [
+      {
+        sequence: '2',
+        recipients: {
+          signers: [
+            {
+              email: signerEmail,
+              name: signerName,
+              roleName,
+              recipientId: '1',
+            },
+          ],
+        },
+      },
+    ],
+  }));
+
+  const sendImmediately = additionalOptions.sendImmediately !== false;
+  const envelope: IDataObject = {
+    emailSubject,
+    compositeTemplates,
+    status: sendImmediately ? 'sent' : 'created',
+  };
+
+  if (additionalOptions.emailBlurb) {
+    envelope.emailBlurb = additionalOptions.emailBlurb;
+  }
+
+  return await docuSignApiRequest.call(ctx, 'POST', '/envelopes', envelope);
+}
+
+// ============================================================================
+// Payment Tab Handlers
+// ============================================================================
+
+/**
+ * Handles creating an envelope with payment collection.
+ */
+async function handlePaymentTabCreateEnvelope(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const emailSubject = ctx.getNodeParameter('emailSubject', itemIndex) as string;
+  const templateId = ctx.getNodeParameter('templateId', itemIndex) as string;
+  const signerEmail = ctx.getNodeParameter('signerEmail', itemIndex) as string;
+  const signerName = ctx.getNodeParameter('signerName', itemIndex) as string;
+  const paymentAmount = ctx.getNodeParameter('paymentAmount', itemIndex) as string;
+  const currencyCode = ctx.getNodeParameter('currencyCode', itemIndex) as string;
+  const gatewayAccountId = ctx.getNodeParameter('gatewayAccountId', itemIndex) as string;
+  const itemName = ctx.getNodeParameter('itemName', itemIndex) as string;
+
+  validateField('Email Subject', emailSubject, 'required');
+  validateField('Template ID', templateId, 'uuid');
+  validateField('Signer Email', signerEmail, 'email');
+  validateField('Signer Name', signerName, 'required');
+  validateField('Payment Amount', paymentAmount, 'required');
+  validateField('Gateway Account ID', gatewayAccountId, 'required');
+  validateField('Item Name', itemName, 'required');
+
+  const amount = parseFloat(paymentAmount);
+  if (isNaN(amount) || amount <= 0) {
+    throw new Error('Payment Amount must be a positive number');
+  }
+
+  const envelope: IDataObject = {
+    templateId,
+    emailSubject,
+    templateRoles: [
+      {
+        email: signerEmail,
+        name: signerName,
+        roleName: 'Signer',
+        tabs: {
+          paymentTabs: [
+            {
+              paymentDetails: {
+                currencyCode,
+                gatewayAccountId,
+                lineItems: [
+                  {
+                    name: itemName,
+                    amount: paymentAmount,
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    ],
+    status: 'sent',
+  };
+
+  return await docuSignApiRequest.call(ctx, 'POST', '/envelopes', envelope);
+}
+
+// ============================================================================
+// Supplemental Document Handlers
+// ============================================================================
+
+/**
+ * Handles adding a supplemental document to an envelope.
+ */
+async function handleSupplementalDocAdd(
+  ctx: IExecuteFunctions,
+  items: INodeExecutionData[],
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  const documentInput = ctx.getNodeParameter('document', itemIndex) as string;
+  const documentName = ctx.getNodeParameter('documentName', itemIndex) as string;
+  const display = ctx.getNodeParameter('display', itemIndex) as string;
+  const additionalOptions = ctx.getNodeParameter('additionalOptions', itemIndex, {}) as IDataObject;
+
+  validateField('Envelope ID', envelopeId, 'uuid');
+  validateField('Document Name', documentName, 'required');
+
+  const documentBase64 = resolveDocumentBase64(items, itemIndex, documentInput);
+  const fileExtension = getFileExtension(documentName);
+
+  const document: IDataObject = {
+    documentBase64,
+    name: documentName,
+    fileExtension,
+    documentId: '999',
+    display,
+    includeInDownload: additionalOptions.includeInDownload !== false ? 'true' : 'false',
+  };
+
+  if (additionalOptions.signerMustAcknowledge) {
+    document.signerMustAcknowledge = additionalOptions.signerMustAcknowledge;
+  }
+
+  return await docuSignApiRequest.call(
+    ctx,
+    'PUT',
+    `/envelopes/${envelopeId}/documents/999`,
+    document,
+  );
+}
+
+// ============================================================================
+// Envelope Transfer Handlers
+// ============================================================================
+
+/**
+ * Handles getting all transfer rules.
+ */
+async function handleEnvelopeTransferGetRules(ctx: IExecuteFunctions): Promise<IDataObject> {
+  return await docuSignApiRequest.call(ctx, 'GET', '/envelopes/transfer_rules');
+}
+
+/**
+ * Handles creating a transfer rule.
+ */
+async function handleEnvelopeTransferCreateRule(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const fromUserEmail = ctx.getNodeParameter('fromUserEmail', itemIndex) as string;
+  const toUserEmail = ctx.getNodeParameter('toUserEmail', itemIndex) as string;
+  const additionalOptions = ctx.getNodeParameter('additionalOptions', itemIndex, {}) as IDataObject;
+
+  validateField('From User Email', fromUserEmail, 'email');
+  validateField('To User Email', toUserEmail, 'email');
+
+  const rule: IDataObject = {
+    fromUser: { email: fromUserEmail },
+    toUser: { email: toUserEmail },
+    carbonCopyOriginalOwner: additionalOptions.carbonCopyOriginalOwner ? 'true' : 'false',
+  };
+
+  return await docuSignApiRequest.call(ctx, 'POST', '/envelopes/transfer_rules', {
+    envelopeTransferRules: [rule],
+  });
+}
+
+/**
+ * Handles updating a transfer rule.
+ */
+async function handleEnvelopeTransferUpdateRule(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const transferRuleId = ctx.getNodeParameter('transferRuleId', itemIndex) as string;
+  const updateFields = ctx.getNodeParameter('updateFields', itemIndex, {});
+
+  validateField('Transfer Rule ID', transferRuleId, 'required');
+
+  if (!updateFields.toUserEmail && updateFields.enabled === undefined) {
+    throw new Error('At least one update field is required');
+  }
+
+  const rule: IDataObject = { envelopeTransferRuleId: transferRuleId };
+
+  if (updateFields.toUserEmail) {
+    validateField('To User Email', updateFields.toUserEmail as string, 'email');
+    rule.toUser = { email: updateFields.toUserEmail };
+  }
+  if (updateFields.enabled !== undefined) {
+    rule.enabled = updateFields.enabled ? 'true' : 'false';
+  }
+
+  return await docuSignApiRequest.call(ctx, 'PUT', '/envelopes/transfer_rules', {
+    envelopeTransferRules: [rule],
+  });
+}
+
+/**
+ * Handles deleting a transfer rule.
+ */
+async function handleEnvelopeTransferDeleteRule(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const transferRuleId = ctx.getNodeParameter('transferRuleId', itemIndex) as string;
+
+  validateField('Transfer Rule ID', transferRuleId, 'required');
+
+  return await docuSignApiRequest.call(ctx, 'DELETE', `/envelopes/transfer_rules/${transferRuleId}`);
+}
+
+// ============================================================================
+// Template Recipients Handlers
+// ============================================================================
+
+/**
+ * Handles adding a recipient to a template.
+ */
+async function handleTemplateRecipientsCreate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const templateId = ctx.getNodeParameter('templateId', itemIndex) as string;
+  const roleName = ctx.getNodeParameter('roleName', itemIndex) as string;
+  const recipientType = ctx.getNodeParameter('recipientType', itemIndex) as string;
+  const additionalOptions = ctx.getNodeParameter('additionalOptions', itemIndex, {}) as IDataObject;
+
+  validateField('Template ID', templateId, 'uuid');
+  validateField('Role Name', roleName, 'required');
+
+  if (additionalOptions.email) {
+    validateField('Email', additionalOptions.email as string, 'email');
+  }
+
+  const recipient: IDataObject = {
+    roleName,
+    recipientId: String(Date.now()),
+    routingOrder: String(additionalOptions.routingOrder || 1),
+  };
+
+  if (additionalOptions.email) {
+    recipient.email = additionalOptions.email;
+  }
+  if (additionalOptions.name) {
+    recipient.name = additionalOptions.name;
+  }
+
+  const recipientKey = recipientType === 'cc' ? 'carbonCopies' : recipientType === 'certifiedDelivery' ? 'certifiedDeliveries' : 'signers';
+
+  return await docuSignApiRequest.call(ctx, 'POST', `/templates/${templateId}/recipients`, {
+    [recipientKey]: [recipient],
+  });
+}
+
+/**
+ * Handles getting all recipients for a template.
+ */
+async function handleTemplateRecipientsGetAll(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const templateId = ctx.getNodeParameter('templateId', itemIndex) as string;
+
+  validateField('Template ID', templateId, 'uuid');
+
+  return await docuSignApiRequest.call(ctx, 'GET', `/templates/${templateId}/recipients`);
+}
+
+/**
+ * Handles updating a template recipient.
+ */
+async function handleTemplateRecipientsUpdate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const templateId = ctx.getNodeParameter('templateId', itemIndex) as string;
+  const recipientId = ctx.getNodeParameter('recipientId', itemIndex) as string;
+  const updateFields = ctx.getNodeParameter('updateFields', itemIndex, {});
+
+  validateField('Template ID', templateId, 'uuid');
+  validateField('Recipient ID', recipientId, 'required');
+
+  if (!updateFields.email && !updateFields.name && !updateFields.roleName) {
+    throw new Error('At least one update field is required');
+  }
+
+  if (updateFields.email) {
+    validateField('Email', updateFields.email as string, 'email');
+  }
+
+  const signer: IDataObject = { recipientId };
+  if (updateFields.email) {
+    signer.email = updateFields.email;
+  }
+  if (updateFields.name) {
+    signer.name = updateFields.name;
+  }
+  if (updateFields.roleName) {
+    signer.roleName = updateFields.roleName;
+  }
+
+  return await docuSignApiRequest.call(ctx, 'PUT', `/templates/${templateId}/recipients`, {
+    signers: [signer],
+  });
+}
+
+/**
+ * Handles deleting a template recipient.
+ */
+async function handleTemplateRecipientsDelete(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const templateId = ctx.getNodeParameter('templateId', itemIndex) as string;
+  const recipientId = ctx.getNodeParameter('recipientId', itemIndex) as string;
+
+  validateField('Template ID', templateId, 'uuid');
+  validateField('Recipient ID', recipientId, 'required');
+
+  return await docuSignApiRequest.call(
+    ctx,
+    'DELETE',
+    `/templates/${templateId}/recipients/${recipientId}`,
+  );
+}
+
+// ============================================================================
+// Scheduled Routing Handlers
+// ============================================================================
+
+/**
+ * Handles getting the workflow for an envelope.
+ */
+async function handleScheduledRoutingGet(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+
+  validateField('Envelope ID', envelopeId, 'uuid');
+
+  return await docuSignApiRequest.call(ctx, 'GET', `/envelopes/${envelopeId}/workflow`);
+}
+
+/**
+ * Handles updating scheduled routing for an envelope.
+ */
+async function handleScheduledRoutingUpdate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  const scheduledSendDate = ctx.getNodeParameter('scheduledSendDate', itemIndex) as string;
+  const additionalOptions = ctx.getNodeParameter('additionalOptions', itemIndex, {}) as IDataObject;
+
+  validateField('Envelope ID', envelopeId, 'uuid');
+  validateField('Scheduled Send Date', scheduledSendDate, 'date');
+
+  const workflow: IDataObject = {
+    scheduledSending: {
+      rules: [
+        {
+          resumeDate: scheduledSendDate,
+        },
+      ],
+    },
+  };
+
+  if (additionalOptions.resumeDate) {
+    validateField('Resume Date', additionalOptions.resumeDate as string, 'date');
+    ((workflow.scheduledSending as IDataObject).rules as IDataObject[])[0].resumeDate =
+      additionalOptions.resumeDate;
+  }
+
+  return await docuSignApiRequest.call(ctx, 'PUT', `/envelopes/${envelopeId}/workflow`, workflow);
+}
+
+/**
+ * Handles deleting scheduled routing for an envelope.
+ */
+async function handleScheduledRoutingDelete(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+
+  validateField('Envelope ID', envelopeId, 'uuid');
+
+  return await docuSignApiRequest.call(ctx, 'DELETE', `/envelopes/${envelopeId}/workflow`);
+}
+
+// ============================================================================
+// Chunked Upload Handlers
+// ============================================================================
+
+/**
+ * Handles initiating a chunked upload session.
+ */
+async function handleChunkedUploadInitiate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const contentType = ctx.getNodeParameter('contentType', itemIndex) as string;
+  const totalSize = ctx.getNodeParameter('totalSize', itemIndex) as number;
+
+  validateField('Content Type', contentType, 'required');
+
+  if (totalSize <= 0) {
+    throw new Error('Total Size must be a positive number');
+  }
+
+  return await docuSignApiRequest.call(ctx, 'POST', '/chunked_uploads', {
+    contentType,
+    totalSize: String(totalSize),
+  });
+}
+
+/**
+ * Handles uploading a chunk to an active session.
+ */
+async function handleChunkedUploadChunk(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const chunkedUploadId = ctx.getNodeParameter('chunkedUploadId', itemIndex) as string;
+  const chunkPart = ctx.getNodeParameter('chunkPart', itemIndex) as number;
+  const chunkData = ctx.getNodeParameter('chunkData', itemIndex) as string;
+
+  validateField('Chunked Upload ID', chunkedUploadId, 'required');
+  validateField('Chunk Data', chunkData, 'base64');
+
+  return await docuSignApiRequest.call(
+    ctx,
+    'PUT',
+    `/chunked_uploads/${chunkedUploadId}/${chunkPart}`,
+    { data: chunkData },
+  );
+}
+
+/**
+ * Handles committing (finalizing) a chunked upload.
+ */
+async function handleChunkedUploadCommit(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const chunkedUploadId = ctx.getNodeParameter('chunkedUploadId', itemIndex) as string;
+
+  validateField('Chunked Upload ID', chunkedUploadId, 'required');
+
+  return await docuSignApiRequest.call(ctx, 'PUT', `/chunked_uploads/${chunkedUploadId}`, {
+    action: 'commit',
+  });
+}
+
+// ============================================================================
+// ID Verification Handlers
+// ============================================================================
+
+/**
+ * Handles getting available IDV workflows.
+ */
+async function handleIdVerificationGetWorkflows(ctx: IExecuteFunctions): Promise<IDataObject> {
+  return await docuSignApiRequest.call(ctx, 'GET', '/identity_verification');
+}
+
+// ============================================================================
 // Main Node Class
 // ============================================================================
 
@@ -2053,6 +3058,280 @@ export class DocuSign implements INodeType {
                   message: `Unknown operation: ${operation}`,
                 },
               );
+          }
+        }
+
+        // ==========================================================================
+        // Recipient Tabs Resource
+        // ==========================================================================
+        else if (resource === 'recipientTabs') {
+          switch (operation) {
+            case 'get':
+              responseData = await handleRecipientTabsGet(this, i);
+              break;
+
+            case 'update':
+              responseData = await handleRecipientTabsUpdate(this, i);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
+        }
+
+        // ==========================================================================
+        // Comments Resource
+        // ==========================================================================
+        else if (resource === 'comments') {
+          switch (operation) {
+            case 'create':
+              responseData = await handleCommentsCreate(this, i);
+              break;
+
+            case 'getAll':
+              responseData = await handleCommentsGetAll(this, i);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
+        }
+
+        // ==========================================================================
+        // Account User Resource
+        // ==========================================================================
+        else if (resource === 'accountUser') {
+          switch (operation) {
+            case 'create':
+              responseData = await handleAccountUserCreate(this, i);
+              break;
+
+            case 'get':
+              responseData = await handleAccountUserGet(this, i);
+              break;
+
+            case 'getAll':
+              responseData = await handleAccountUserGetAll(this, i);
+              break;
+
+            case 'update':
+              responseData = await handleAccountUserUpdate(this, i);
+              break;
+
+            case 'delete':
+              responseData = await handleAccountUserDelete(this, i);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
+        }
+
+        // ==========================================================================
+        // Account Group Resource
+        // ==========================================================================
+        else if (resource === 'accountGroup') {
+          switch (operation) {
+            case 'create':
+              responseData = await handleAccountGroupCreate(this, i);
+              break;
+
+            case 'getAll':
+              responseData = await handleAccountGroupGetAll(this, i);
+              break;
+
+            case 'update':
+              responseData = await handleAccountGroupUpdate(this, i);
+              break;
+
+            case 'delete':
+              responseData = await handleAccountGroupDelete(this, i);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
+        }
+
+        // ==========================================================================
+        // Connect Configuration Resource
+        // ==========================================================================
+        else if (resource === 'connectConfig') {
+          switch (operation) {
+            case 'create':
+              responseData = await handleConnectConfigCreate(this, i);
+              break;
+
+            case 'get':
+              responseData = await handleConnectConfigGet(this, i);
+              break;
+
+            case 'getAll':
+              responseData = await handleConnectConfigGetAll(this, i);
+              break;
+
+            case 'update':
+              responseData = await handleConnectConfigUpdate(this, i);
+              break;
+
+            case 'delete':
+              responseData = await handleConnectConfigDelete(this, i);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
+        }
+
+        // ==========================================================================
+        // Composite Template Resource
+        // ==========================================================================
+        else if (resource === 'compositeTemplate') {
+          switch (operation) {
+            case 'createEnvelope':
+              responseData = await handleCompositeTemplateCreateEnvelope(this, i);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
+        }
+
+        // ==========================================================================
+        // Payment Tab Resource
+        // ==========================================================================
+        else if (resource === 'paymentTab') {
+          switch (operation) {
+            case 'createEnvelope':
+              responseData = await handlePaymentTabCreateEnvelope(this, i);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
+        }
+
+        // ==========================================================================
+        // Supplemental Document Resource
+        // ==========================================================================
+        else if (resource === 'supplementalDoc') {
+          switch (operation) {
+            case 'addToEnvelope':
+              responseData = await handleSupplementalDocAdd(this, items, i);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
+        }
+
+        // ==========================================================================
+        // Envelope Transfer Resource
+        // ==========================================================================
+        else if (resource === 'envelopeTransfer') {
+          switch (operation) {
+            case 'getRules':
+              responseData = await handleEnvelopeTransferGetRules(this);
+              break;
+
+            case 'createRule':
+              responseData = await handleEnvelopeTransferCreateRule(this, i);
+              break;
+
+            case 'updateRule':
+              responseData = await handleEnvelopeTransferUpdateRule(this, i);
+              break;
+
+            case 'deleteRule':
+              responseData = await handleEnvelopeTransferDeleteRule(this, i);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
+        }
+
+        // ==========================================================================
+        // Template Recipients Resource
+        // ==========================================================================
+        else if (resource === 'templateRecipients') {
+          switch (operation) {
+            case 'create':
+              responseData = await handleTemplateRecipientsCreate(this, i);
+              break;
+
+            case 'getAll':
+              responseData = await handleTemplateRecipientsGetAll(this, i);
+              break;
+
+            case 'update':
+              responseData = await handleTemplateRecipientsUpdate(this, i);
+              break;
+
+            case 'delete':
+              responseData = await handleTemplateRecipientsDelete(this, i);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
+        }
+
+        // ==========================================================================
+        // Scheduled Routing Resource
+        // ==========================================================================
+        else if (resource === 'scheduledRouting') {
+          switch (operation) {
+            case 'get':
+              responseData = await handleScheduledRoutingGet(this, i);
+              break;
+
+            case 'update':
+              responseData = await handleScheduledRoutingUpdate(this, i);
+              break;
+
+            case 'delete':
+              responseData = await handleScheduledRoutingDelete(this, i);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
+        }
+
+        // ==========================================================================
+        // Chunked Upload Resource
+        // ==========================================================================
+        else if (resource === 'chunkedUpload') {
+          switch (operation) {
+            case 'initiate':
+              responseData = await handleChunkedUploadInitiate(this, i);
+              break;
+
+            case 'uploadChunk':
+              responseData = await handleChunkedUploadChunk(this, i);
+              break;
+
+            case 'commit':
+              responseData = await handleChunkedUploadCommit(this, i);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
+        }
+
+        // ==========================================================================
+        // ID Verification Resource
+        // ==========================================================================
+        else if (resource === 'idVerification') {
+          switch (operation) {
+            case 'getWorkflows':
+              responseData = await handleIdVerificationGetWorkflows(this);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
           }
         } else {
           throw new NodeApiError(

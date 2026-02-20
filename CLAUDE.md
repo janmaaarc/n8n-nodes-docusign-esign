@@ -16,22 +16,52 @@ nodes/DocuSign/
 ├── constants.ts              # API URLs, status codes, defaults
 ├── types.ts                  # TypeScript interfaces
 └── resources/                # UI field definitions by resource
+    ├── accountGroup.ts
+    ├── accountUser.ts
     ├── brand.ts
     ├── bulkSend.ts
+    ├── chunkedUpload.ts
+    ├── comments.ts
+    ├── compositeTemplate.ts
+    ├── connectConfig.ts
     ├── documentGeneration.ts
     ├── envelope.ts
     ├── envelopeLock.ts
+    ├── envelopeTransfer.ts
     ├── folder.ts
+    ├── idVerification.ts
+    ├── paymentTab.ts
     ├── powerForm.ts
+    ├── recipientTabs.ts
+    ├── scheduledRouting.ts
     ├── signingGroup.ts
+    ├── supplementalDoc.ts
     ├── template.ts
+    ├── templateRecipients.ts
     └── index.ts
 
 credentials/
 └── DocuSignApi.credentials.ts  # JWT authentication with token caching
 
 test/
-└── DocuSign.test.ts            # Vitest test files
+├── DocuSign.test.ts            # Core test file (320 tests)
+├── setup/
+│   ├── mockContext.ts           # Shared mock context factory
+│   └── constants.ts             # Shared test constants
+└── features/                    # Feature-specific tests (72 tests)
+    ├── accountGroup.test.ts
+    ├── accountUser.test.ts
+    ├── chunkedUpload.test.ts
+    ├── comments.test.ts
+    ├── compositeTemplate.test.ts
+    ├── connectConfig.test.ts
+    ├── envelopeTransfer.test.ts
+    ├── idVerification.test.ts
+    ├── paymentTab.test.ts
+    ├── recipientTabs.test.ts
+    ├── scheduledRouting.test.ts
+    ├── supplementalDoc.test.ts
+    └── templateRecipients.test.ts
 ```
 
 ## Critical Rules
@@ -172,7 +202,7 @@ npm run typecheck  # TypeScript type check
 ## Git Workflow
 
 - Conventional commits: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`
-- Run `npm run lint && npm run build && npm test` before committing
+- **ALWAYS run `npm run lint && npm run build && npm test` before committing and pushing** to catch CI/CD errors locally
 - Update CHANGELOG.md for user-facing changes
 - Update SECURITY.md for security-related changes
 

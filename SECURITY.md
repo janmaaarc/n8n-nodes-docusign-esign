@@ -4,6 +4,7 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
+| 0.9.x   | :white_check_mark: |
 | 0.8.x   | :white_check_mark: |
 | 0.7.x   | :white_check_mark: |
 | 0.6.x   | :white_check_mark: |
@@ -91,6 +92,20 @@ This node implements several security measures:
    - Use production only for live workflows
 
 ## Security Changelog
+
+### v0.9.0
+- Payment tab amount validation (positive numbers, numeric format)
+- Payment currency code validation (ISO 4217 allowlist)
+- Connect Configuration webhook URL validation (SSRF protection for webhook URLs)
+- Account user email validation for all user CRUD operations
+- Template recipient email validation
+- Envelope transfer user email validation (from/to)
+- Chunked upload session ID validation and size validation (positive numbers)
+- Chunked upload data validation (base64 format)
+- Composite template ID validation (UUID format per template)
+- Scheduled routing date validation (ISO 8601 format)
+- ID verification workflow ID format preserved from API
+- Maintained all existing security features
 
 ### v0.8.0
 - Envelope lock token validation for lock update/unlock operations

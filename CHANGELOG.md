@@ -5,6 +5,79 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-02-20
+
+### Added
+
+#### Envelope Enhancements
+- **Composite Templates** - Create envelopes combining multiple server templates with inline recipients
+  - Supports comma-separated template IDs with automatic sequencing
+  - Inline recipient override per template
+- **Envelope Transfer** - Manage envelope ownership transfer rules
+  - Get Rules - List all transfer rules
+  - Create Rule - Transfer envelopes between users
+  - Update Rule - Enable/disable or change target user
+  - Delete Rule - Remove transfer rules
+- **Supplemental Documents** - Attach supplemental documents (terms & conditions, disclosures) to envelopes
+  - Modal or inline display modes
+  - Configurable acknowledgment requirements (no interaction, view, accept)
+- **Scheduled Routing** - Schedule envelope delivery for a future date
+  - Get - Retrieve workflow rules
+  - Update - Set scheduled send date
+  - Delete - Remove scheduled routing
+
+#### Recipient & Tab Management
+- **Recipient Tabs** - Get and update tabs for specific recipients on sent envelopes
+  - Get Tabs - Retrieve all tabs for a recipient
+  - Update Tabs - Modify text and checkbox tab values
+- **Payment Tabs** - Create envelopes with payment collection during signing
+  - ISO 4217 currency code support (USD, EUR, GBP, CAD, AUD, JPY)
+  - Payment amount validation (positive numbers only)
+  - Payment gateway integration
+- **Template Recipients** - Full recipient management on templates
+  - Create - Add signer, CC, or certified delivery recipients
+  - Get Many - Retrieve all template recipients
+  - Update - Modify email, name, or role
+  - Delete - Remove recipients from templates
+- **ID Verification** - Identity verification workflows
+  - Get Workflows - List available IDV workflows for the account
+
+#### Administration
+- **Connect Configuration** - Manage DocuSign Connect webhook configurations programmatically
+  - Create - Set up webhook with URL, events, and options
+  - Get / Get Many - Retrieve configurations
+  - Update - Modify name, URL, or enable/disable
+  - Delete - Remove configurations
+  - SSRF protection on webhook URLs
+- **Account Users** - Manage users in the DocuSign account
+  - Create - Add new users with optional company/job title
+  - Get / Get Many - Retrieve user details with status/email filters
+  - Update - Modify email, name, company, job title
+  - Delete - Remove users
+- **Account Groups** - Manage permission groups
+  - Create - Create groups with optional permission profile
+  - Get Many - List all groups
+  - Update - Modify name or permission profile
+  - Delete - Remove groups
+
+#### Advanced Features
+- **Chunked Uploads** - Upload large documents (>25MB) in chunks
+  - Initiate - Start upload session with content type and total size
+  - Upload Chunk - Send individual base64-encoded chunks
+  - Commit - Finalize the upload
+- **Comments API** - Add and retrieve comments on envelopes
+  - Create - Add comments with optional thread reply
+  - Get Many - Retrieve comments with pagination
+
+### Changed
+- **392 Total Tests** - Added 72 new tests across 13 feature test files
+- Added 13 new resource definitions, handler functions, and dispatch cases
+- Added new type definitions for all features (types.ts)
+- Extended resource endpoint mapping (constants.ts)
+- Modular test structure with shared mock context (`test/setup/`)
+
+---
+
 ## [0.8.0] - 2026-02-10
 
 ### Added

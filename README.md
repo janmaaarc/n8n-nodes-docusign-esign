@@ -27,6 +27,19 @@ An [n8n](https://n8n.io/) community node for [DocuSign](https://www.docusign.com
 - **Brand Management** - Custom branding for envelopes and signing experience
 - **Document Generation** - Populate Word templates with dynamic data (DocGen)
 - **Envelope Lock Management** - Prevent concurrent editing of envelopes
+- **Composite Templates** - Create envelopes combining multiple server templates with inline recipients
+- **Envelope Transfer Rules** - Manage envelope ownership transfer between users
+- **Supplemental Documents** - Attach terms & conditions or disclosures with acknowledgment options
+- **Scheduled Routing** - Schedule envelope delivery for a future date
+- **Recipient Tabs** - Get and update tab values for specific recipients on sent envelopes
+- **Payment Tabs** - Collect payments during signing with ISO 4217 currency support
+- **Template Recipients** - Full recipient management (add, update, remove) on templates
+- **ID Verification** - List available identity verification workflows for the account
+- **Connect Configuration** - Manage DocuSign Connect webhook configurations programmatically
+- **Account Users** - Create, get, update, and delete users in the DocuSign account
+- **Account Groups** - Manage permission groups for user access control
+- **Chunked Uploads** - Upload large documents (>25MB) in chunks with session management
+- **Comments API** - Add and retrieve comments on envelopes with thread support
 - **Webhook Trigger** - Real-time event notifications via DocuSign Connect
 - **Regional Support** - NA, EU, AU, and CA regions for production environments
 - **Rate Limiting** - Built-in retry logic with exponential backoff
@@ -105,6 +118,19 @@ The main node for interacting with the DocuSign eSignature API.
 | **Brand** | Create, Get, Get Many, Update, Delete |
 | **Document Generation** | Get Form Fields, Update Form Fields |
 | **Envelope Lock** | Lock, Get Lock, Update Lock, Unlock |
+| **Composite Template** | Create Envelope |
+| **Envelope Transfer** | Get Rules, Create Rule, Update Rule, Delete Rule |
+| **Supplemental Document** | Create Envelope |
+| **Scheduled Routing** | Get, Update, Delete |
+| **Recipient Tabs** | Get, Update |
+| **Payment Tab** | Create Envelope |
+| **Template Recipients** | Create, Get Many, Update, Delete |
+| **ID Verification** | Get Workflows |
+| **Connect Configuration** | Create, Get, Get Many, Update, Delete |
+| **Account User** | Create, Get, Get Many, Update, Delete |
+| **Account Group** | Create, Get Many, Update, Delete |
+| **Chunked Upload** | Initiate, Upload Chunk, Commit |
+| **Comments** | Create, Get Many |
 
 #### Envelope Create Options
 
@@ -126,6 +152,10 @@ The main node for interacting with the DocuSign eSignature API.
 | **Brand ID** | Use custom branding for the envelope |
 | **Enable Wet Sign** | Allow print-and-sign option |
 | **Enforce Signer Visibility** | Signers only see their own fields |
+| **Composite Templates** | Combine multiple server templates with inline recipient overrides |
+| **Payment Collection** | Collect payments during signing (USD, EUR, GBP, CAD, AUD, JPY) |
+| **Supplemental Documents** | Attach terms & conditions with configurable acknowledgment |
+| **Scheduled Send** | Schedule envelope delivery for a future date |
 
 ### DocuSign Trigger
 
@@ -204,6 +234,38 @@ Schedule Trigger > DocuSign (Get Many, status=sent) > Google Sheets (Update)
 ```
 
 Track pending envelopes and update a dashboard.
+
+### 8. Bulk Send with Template
+
+```
+Form Trigger > DocuSign (Bulk Send: Create List) > DocuSign (Bulk Send: Send) > DocuSign (Bulk Send: Get Batch Status)
+```
+
+Build a recipient list and send the same envelope to hundreds of recipients at once.
+
+### 9. Manage Connect Webhooks
+
+```
+Schedule Trigger > DocuSign (Connect Config: Get Many) > IF (Config Missing) > DocuSign (Connect Config: Create)
+```
+
+Programmatically manage DocuSign Connect webhook configurations.
+
+### 10. Payment Collection
+
+```
+Form Trigger > DocuSign (Payment Tab: Create Envelope) > DocuSign Trigger (envelope-completed) > Update Payment System
+```
+
+Collect payments during the signing process with ISO 4217 currency support.
+
+### 11. Large Document Upload
+
+```
+HTTP Request (Get File) > DocuSign (Chunked Upload: Initiate) > DocuSign (Chunked Upload: Upload Chunk) > DocuSign (Chunked Upload: Commit)
+```
+
+Upload documents larger than 25MB using chunked upload sessions.
 
 ### Importable Workflow: Send Document for Signature
 
@@ -444,6 +506,30 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 - [n8n Community Nodes Documentation](https://docs.n8n.io/integrations/community-nodes/)
 
 ## Changelog
+
+### v0.9.0
+
+**Envelope Enhancements:**
+- **Composite Templates** - Create envelopes combining multiple server templates with inline recipients
+- **Envelope Transfer** - Manage envelope ownership transfer rules (CRUD)
+- **Supplemental Documents** - Attach supplemental documents with configurable acknowledgment
+- **Scheduled Routing** - Schedule envelope delivery for a future date
+
+**Recipient & Tab Management:**
+- **Recipient Tabs** - Get and update tabs for specific recipients on sent envelopes
+- **Payment Tabs** - Create envelopes with payment collection (ISO 4217 currency support)
+- **Template Recipients** - Full recipient management on templates (create, get, update, delete)
+- **ID Verification** - List available identity verification workflows
+
+**Administration:**
+- **Connect Configuration** - Manage DocuSign Connect webhook configurations programmatically (CRUD)
+- **Account Users** - Manage users in the DocuSign account (CRUD with filters)
+- **Account Groups** - Manage permission groups (create, list, update, delete)
+
+**Advanced Features:**
+- **Chunked Uploads** - Upload large documents (>25MB) in chunks with session management
+- **Comments API** - Add and retrieve comments on envelopes with thread support
+- 392 total tests, 13 new resource definitions
 
 ### v0.8.0
 

@@ -95,6 +95,19 @@ export const RESOURCE_ENDPOINTS: Record<string, string> = {
   brand: 'brands',
   envelopeLock: 'lock',
   documentGeneration: 'docGenFormFields',
+  recipientTabs: 'tabs',
+  comments: 'comments',
+  accountUser: 'users',
+  accountGroup: 'groups',
+  connectConfig: 'connect',
+  compositeTemplate: 'envelopes',
+  paymentTab: 'envelopes',
+  supplementalDoc: 'documents',
+  envelopeTransfer: 'envelopes/transfer_rules',
+  templateRecipients: 'recipients',
+  scheduledRouting: 'workflow',
+  chunkedUpload: 'chunked_uploads',
+  idVerification: 'identity_verification',
 };
 
 /**
@@ -110,6 +123,15 @@ export const RESOURCE_ID_PARAMS: Record<string, string> = {
   signingGroup: 'signingGroupId',
   brand: 'brandId',
   envelopeLock: 'envelopeId',
+  recipientTabs: 'envelopeId',
+  comments: 'envelopeId',
+  accountUser: 'userId',
+  accountGroup: 'groupId',
+  connectConfig: 'connectId',
+  envelopeTransfer: 'transferRuleId',
+  templateRecipients: 'templateId',
+  scheduledRouting: 'envelopeId',
+  chunkedUpload: 'chunkedUploadId',
 };
 
 /**

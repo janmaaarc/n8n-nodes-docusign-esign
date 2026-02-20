@@ -366,3 +366,129 @@ export interface PaginationOptions {
   /** Page size for each request (default: 100) */
   pageSize?: number;
 }
+
+/**
+ * Connect configuration (webhook)
+ */
+export interface DocuSignConnectConfig {
+  connectId?: string;
+  name: string;
+  urlToPublishTo: string;
+  allowEnvelopePublish?: string;
+  enableLog?: string;
+  eventData?: IDataObject;
+}
+
+/**
+ * Account user
+ */
+export interface DocuSignAccountUser {
+  userId?: string;
+  userName: string;
+  email: string;
+  company?: string;
+  jobTitle?: string;
+  userStatus?: string;
+}
+
+/**
+ * Account permission group
+ */
+export interface DocuSignAccountGroup {
+  groupId?: string;
+  groupName: string;
+  groupType?: string;
+  permissionProfileId?: string;
+  usersCount?: string;
+}
+
+/**
+ * Envelope transfer rule
+ */
+export interface DocuSignTransferRule {
+  envelopeTransferRuleId?: string;
+  fromUser?: { userId?: string; email?: string };
+  toUser?: { userId?: string; email?: string };
+  carbonCopyOriginalOwner?: string;
+  enabled?: string;
+}
+
+/**
+ * Chunked upload session
+ */
+export interface DocuSignChunkedUpload {
+  chunkedUploadId?: string;
+  chunkedUploadUri?: string;
+  committed?: string;
+  expirationDateTime?: string;
+  totalSize?: string;
+}
+
+/**
+ * Envelope comment
+ */
+export interface DocuSignComment {
+  commentId?: string;
+  text?: string;
+  threadId?: string;
+  timeStampFormatted?: string;
+  senderName?: string;
+  senderEmail?: string;
+}
+
+/**
+ * Identity verification workflow
+ */
+export interface DocuSignIdVerificationWorkflow {
+  workflowId: string;
+  workflowLabel: string;
+  defaultName?: string;
+  type?: string;
+}
+
+/**
+ * Composite template definition
+ */
+export interface DocuSignCompositeTemplate {
+  compositeTemplateId?: string;
+  serverTemplates?: Array<{
+    sequence: string;
+    templateId: string;
+  }>;
+  inlineTemplates?: Array<{
+    sequence: string;
+    recipients?: DocuSignRecipients;
+  }>;
+}
+
+/**
+ * Payment line item for payment tabs
+ */
+export interface DocuSignPaymentLineItem {
+  name: string;
+  description?: string;
+  amountReference?: string;
+  amount?: string;
+}
+
+/**
+ * Payment details for payment tabs
+ */
+export interface DocuSignPaymentDetails {
+  currencyCode: string;
+  gatewayAccountId: string;
+  lineItems: DocuSignPaymentLineItem[];
+  total?: string;
+}
+
+/**
+ * Scheduled routing / workflow definition
+ */
+export interface DocuSignWorkflow {
+  workflowStatus?: string;
+  scheduledSending?: {
+    rules?: Array<{
+      resumeDate?: string;
+    }>;
+  };
+}

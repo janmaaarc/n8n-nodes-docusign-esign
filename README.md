@@ -40,6 +40,18 @@ An [n8n](https://n8n.io/) community node for [DocuSign](https://www.docusign.com
 - **Account Groups** - Manage permission groups for user access control
 - **Chunked Uploads** - Upload large documents (>25MB) in chunks with session management
 - **Comments API** - Add and retrieve comments on envelopes with thread support
+- **Envelope Form Data** - Retrieve form field data entered by recipients
+- **Envelope Views** - Generate sender view and edit view URLs for DocuSign UI
+- **Envelope Custom Fields** - CRUD custom metadata fields on individual envelopes
+- **Envelope Attachments** - Manage file attachments on envelopes
+- **Envelope Document Fields** - CRUD custom fields on individual documents within envelopes
+- **Envelope Email Settings** - Control email behavior (reply-to, BCC) per envelope
+- **Custom Tabs** - Manage reusable tab definitions for consistent field formatting
+- **Contacts** - Manage DocuSign address book contacts
+- **Permission Profiles** - Manage account permission profiles for user access control
+- **Account Custom Fields** - Manage account-level custom field definitions
+- **Connect Events** - Monitor and retry DocuSign Connect delivery events
+- **PowerForm Data** - Retrieve PowerForm submission data
 - **Webhook Trigger** - Real-time event notifications via DocuSign Connect
 - **Regional Support** - NA, EU, AU, and CA regions for production environments
 - **Rate Limiting** - Built-in retry logic with exponential backoff
@@ -109,10 +121,10 @@ The main node for interacting with the DocuSign eSignature API.
 
 | Resource | Operations |
 |----------|------------|
-| **Envelope** | Create, Create From Template, Get, Get Many, Send, Resend, Void, Delete, Download Document, List Documents, Get Recipients, Update Recipients, Get Audit Events, Create Signing URL, Correct |
+| **Envelope** | Create, Create From Template, Get, Get Many, Send, Resend, Void, Delete, Download Document, List Documents, Get Recipients, Update Recipients, Get Audit Events, Create Signing URL, Correct, Get Form Data, Create Sender View, Create Edit View |
 | **Template** | Create, Get, Get Many, Update, Delete |
 | **Bulk Send** | Create List, Get List, Get Many Lists, Delete List, Send, Get Batch Status |
-| **PowerForm** | Create, Get, Get Many, Delete |
+| **PowerForm** | Create, Get, Get Many, Delete, Get Form Data |
 | **Folder** | Get Many, Get Items, Move Envelope, Search |
 | **Signing Group** | Create, Get, Get Many, Update, Delete |
 | **Brand** | Create, Get, Get Many, Update, Delete |
@@ -131,6 +143,15 @@ The main node for interacting with the DocuSign eSignature API.
 | **Account Group** | Create, Get Many, Update, Delete |
 | **Chunked Upload** | Initiate, Upload Chunk, Commit |
 | **Comments** | Create, Get Many |
+| **Envelope Custom Field** | Create, Get, Update, Delete |
+| **Envelope Attachment** | Get Many, Create, Delete |
+| **Envelope Document Field** | Get, Create, Update, Delete |
+| **Envelope Email Setting** | Get, Create, Update, Delete |
+| **Custom Tab** | Create, Get, Get Many, Update, Delete |
+| **Contact** | Create, Get Many, Update, Delete |
+| **Permission Profile** | Create, Get, Get Many, Update, Delete |
+| **Account Custom Field** | Create, Get Many, Update, Delete |
+| **Connect Event** | Get Failures, Get Logs, Retry |
 
 #### Envelope Create Options
 
@@ -266,6 +287,38 @@ HTTP Request (Get File) > DocuSign (Chunked Upload: Initiate) > DocuSign (Chunke
 ```
 
 Upload documents larger than 25MB using chunked upload sessions.
+
+### 12. Envelope Form Data Extraction
+
+```
+DocuSign Trigger (envelope-completed) > DocuSign (Envelope: Get Form Data) > Google Sheets (Append Row)
+```
+
+Extract form field data from completed envelopes and store in a spreadsheet.
+
+### 13. Permission Profile Management
+
+```
+Schedule Trigger > DocuSign (Permission Profile: Get Many) > IF (Missing Profile) > DocuSign (Permission Profile: Create)
+```
+
+Ensure required permission profiles exist in the account.
+
+### 14. Contact Sync
+
+```
+CRM Trigger (New Contact) > DocuSign (Contact: Create) > Slack (Notify)
+```
+
+Sync contacts from your CRM to DocuSign's address book.
+
+### 15. Connect Event Monitoring
+
+```
+Schedule Trigger > DocuSign (Connect Event: Get Failures) > IF (Has Failures) > DocuSign (Connect Event: Retry) > Slack (Alert)
+```
+
+Monitor and auto-retry failed DocuSign Connect webhook deliveries.
 
 ### Importable Workflow: Send Document for Signature
 
@@ -506,6 +559,29 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 - [n8n Community Nodes Documentation](https://docs.n8n.io/integrations/community-nodes/)
 
 ## Changelog
+
+### v0.10.0
+
+**Envelope Enhancements:**
+- **Envelope Form Data** - Retrieve form field data entered by recipients
+- **Envelope Views Extended** - Generate sender view and edit view URLs
+- **Envelope Custom Fields** - CRUD custom metadata fields on individual envelopes
+- **Envelope Attachments** - Manage file attachments on envelopes (get, create, delete)
+- **Envelope Document Fields** - CRUD custom fields on individual documents
+- **Envelope Email Settings** - Control email behavior (reply-to, BCC) per envelope
+
+**Account Management:**
+- **Custom Tabs** - Manage reusable tab definitions (text, number, date, list, checkbox, radio, note)
+- **Contacts** - Manage DocuSign address book contacts (create, list, update, delete)
+- **Permission Profiles** - Manage account permission profiles with granular settings
+- **Account Custom Fields** - Manage account-level text and list field definitions
+
+**PowerForm Enhancements:**
+- **PowerForm Data** - Retrieve PowerForm submission data
+
+**Advanced Features:**
+- **Connect Events** - Monitor and retry DocuSign Connect delivery events
+- 469 total tests, 31 resource definitions (9 new)
 
 ### v0.9.0
 

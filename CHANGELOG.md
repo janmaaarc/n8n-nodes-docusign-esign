@@ -5,6 +5,77 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-02-24
+
+### Added
+
+#### Envelope Enhancements
+- **Envelope Form Data** - Retrieve form field data entered by recipients
+  - Get Form Data - GET `/envelopes/{id}/form_data`
+- **Envelope Views Extended** - Generate sender and edit view URLs
+  - Create Sender View - Generate URL for sender to view envelope
+  - Create Edit View - Generate URL for editing envelope in DocuSign UI
+- **Envelope Custom Fields** - Manage custom metadata fields on individual envelopes
+  - Create - Add text or list custom fields
+  - Get - Retrieve custom fields for an envelope
+  - Update - Modify existing custom field values
+  - Delete - Remove custom fields from an envelope
+- **Envelope Attachments** - Manage file attachments on envelopes
+  - Get Many - List all attachments on an envelope
+  - Create - Add attachments with base64-encoded content
+  - Delete - Remove attachments from an envelope
+- **Envelope Document Fields** - Manage custom fields on individual documents within envelopes
+  - Get - Retrieve document fields
+  - Create - Add custom fields to a document
+  - Update - Modify document field values
+  - Delete - Remove fields from a document
+- **Envelope Email Settings** - Control email behavior per envelope
+  - Get - Retrieve email settings (reply-to, BCC)
+  - Create - Configure email overrides for an envelope
+  - Update - Modify email settings
+  - Delete - Remove email setting overrides
+
+#### Account Management
+- **Custom Tabs** - Manage reusable tab definitions for consistent field formatting
+  - Create - Define tab with type (text, number, date, list, checkbox, radio, note)
+  - Get / Get Many - Retrieve tab definitions
+  - Update - Modify tab properties (label, font, bold, required)
+  - Delete - Remove tab definitions
+- **Contacts** - Manage DocuSign address book contacts
+  - Create - Add contacts with name, email, and optional organization
+  - Get Many - List contacts with pagination
+  - Update - Modify contact details
+  - Delete - Remove contacts
+- **Permission Profiles** - Manage account permission profiles for user access control
+  - Create - Define profiles with granular permissions (send, manage templates, etc.)
+  - Get / Get Many - Retrieve permission profiles
+  - Update - Modify profile name and permission settings
+  - Delete - Remove permission profiles
+- **Account Custom Fields** - Manage account-level custom field definitions
+  - Create - Define text or list type fields with optional required/show settings
+  - Get Many - List all account custom fields
+  - Update - Modify field properties
+  - Delete - Remove field definitions
+
+#### PowerForm Enhancements
+- **PowerForm Data** - Retrieve PowerForm submission data
+  - Get Form Data - GET `/powerforms/{id}/form_data`
+
+#### Advanced Features
+- **Connect Events** - Monitor and manage DocuSign Connect delivery events
+  - Get Failures - Retrieve failed Connect deliveries
+  - Get Logs - Query delivery logs with date filters
+  - Retry - Retry a failed delivery by failure ID
+
+### Changed
+- **469 Total Tests** - Added 77 new tests across 11 feature test files
+- Added 9 new resource definitions (22 → 31 total resources)
+- Added 40 new handler functions and 12 dispatch blocks
+- Added 9 new type definitions (types.ts)
+- Extended resource endpoint mapping (constants.ts)
+
+---
+
 ## [0.9.0] - 2026-02-20
 
 ### Added

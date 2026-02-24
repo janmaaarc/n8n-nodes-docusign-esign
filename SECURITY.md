@@ -4,6 +4,7 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
+| 0.10.x  | :white_check_mark: |
 | 0.9.x   | :white_check_mark: |
 | 0.8.x   | :white_check_mark: |
 | 0.7.x   | :white_check_mark: |
@@ -92,6 +93,22 @@ This node implements several security measures:
    - Use production only for live workflows
 
 ## Security Changelog
+
+### v0.10.0
+- Envelope custom field validation (envelope ID as UUID)
+- Envelope attachment content validation (base64 format)
+- Envelope document field validation (envelope ID + document ID as UUID)
+- Envelope email settings reply-to email validation (RFC 5322)
+- Custom tab label validation (required, non-empty)
+- Contact email validation (RFC 5322) and name validation
+- Permission profile name validation (required, non-empty)
+- Permission profile ID validation for get/update/delete
+- Account custom field name validation (required, non-empty)
+- Connect event failure ID validation (required, non-empty)
+- Connect event log date filter validation
+- Sender/edit view return URL validation (SSRF-safe URL validation)
+- PowerForm ID validation for form data retrieval (UUID format)
+- Maintained all existing security features
 
 ### v0.9.0
 - Payment tab amount validation (positive numbers, numeric format)

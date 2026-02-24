@@ -108,6 +108,15 @@ export const RESOURCE_ENDPOINTS: Record<string, string> = {
   scheduledRouting: 'workflow',
   chunkedUpload: 'chunked_uploads',
   idVerification: 'identity_verification',
+  envelopeCustomField: 'custom_fields',
+  envelopeAttachment: 'attachments',
+  envelopeDocumentField: 'fields',
+  envelopeEmailSetting: 'email_settings',
+  customTab: 'tab_definitions',
+  contact: 'contacts',
+  permissionProfile: 'permission_profiles',
+  accountCustomField: 'custom_fields',
+  connectEvent: 'connect',
 };
 
 /**
@@ -132,6 +141,15 @@ export const RESOURCE_ID_PARAMS: Record<string, string> = {
   templateRecipients: 'templateId',
   scheduledRouting: 'envelopeId',
   chunkedUpload: 'chunkedUploadId',
+  envelopeCustomField: 'envelopeId',
+  envelopeAttachment: 'envelopeId',
+  envelopeDocumentField: 'envelopeId',
+  envelopeEmailSetting: 'envelopeId',
+  customTab: 'customTabId',
+  contact: 'contactId',
+  permissionProfile: 'permissionProfileId',
+  accountCustomField: 'fieldId',
+  connectEvent: 'failureId',
 };
 
 /**

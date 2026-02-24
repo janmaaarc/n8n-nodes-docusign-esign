@@ -105,6 +105,24 @@ export const envelopeOperations: INodeProperties = {
       action: 'Correct an envelope',
       description: 'Generate a correction URL for a sent envelope',
     },
+    {
+      name: 'Get Form Data',
+      value: 'getFormData',
+      action: 'Get form data',
+      description: 'Retrieve all form field data entered by recipients',
+    },
+    {
+      name: 'Create Sender View',
+      value: 'createSenderView',
+      action: 'Create sender view URL',
+      description: 'Generate a URL for the sender to view the envelope in the DocuSign UI',
+    },
+    {
+      name: 'Create Edit View',
+      value: 'createEditView',
+      action: 'Create edit view URL',
+      description: 'Generate a URL to edit the envelope in the DocuSign UI',
+    },
   ],
   default: 'create',
 };
@@ -1038,6 +1056,9 @@ export const envelopeFields: INodeProperties[] = [
           'createRecipientView',
           'listDocuments',
           'correct',
+          'getFormData',
+          'createSenderView',
+          'createEditView',
         ],
       },
     },
@@ -1348,7 +1369,7 @@ export const envelopeFields: INodeProperties[] = [
   },
 
   // ==========================================================================
-  // Correct Operation Fields
+  // Correct / Sender View / Edit View — Return URL
   // ==========================================================================
   {
     displayName: 'Return URL',
@@ -1358,11 +1379,11 @@ export const envelopeFields: INodeProperties[] = [
     displayOptions: {
       show: {
         resource: ['envelope'],
-        operation: ['correct'],
+        operation: ['correct', 'createSenderView', 'createEditView'],
       },
     },
     default: '',
-    placeholder: 'https://yourapp.com/correction-complete',
-    description: 'URL to redirect to after correction is complete',
+    placeholder: 'https://yourapp.com/complete',
+    description: 'URL to redirect to after the action is complete',
   },
 ];

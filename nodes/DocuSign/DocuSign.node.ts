@@ -2668,6 +2668,819 @@ async function handleIdVerificationGetWorkflows(ctx: IExecuteFunctions): Promise
 }
 
 // ============================================================================
+// Envelope Form Data / Views Handlers
+// ============================================================================
+
+/**
+ * Get all form field data entered by recipients on an envelope
+ */
+async function handleEnvelopeGetFormData(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  validateField('Envelope ID', envelopeId, 'uuid');
+  return await docuSignApiRequest.call(ctx, 'GET', `/envelopes/${envelopeId}/form_data`);
+}
+
+/**
+ * Generate a sender view URL for reviewing/sending an envelope
+ */
+async function handleEnvelopeCreateSenderView(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  const returnUrl = ctx.getNodeParameter('returnUrl', itemIndex) as string;
+  validateField('Envelope ID', envelopeId, 'uuid');
+  validateField('Return URL', returnUrl, 'url');
+  return await docuSignApiRequest.call(ctx, 'POST', `/envelopes/${envelopeId}/views/sender`, {
+    returnUrl,
+  });
+}
+
+/**
+ * Generate an edit view URL for modifying an envelope
+ */
+async function handleEnvelopeCreateEditView(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  const returnUrl = ctx.getNodeParameter('returnUrl', itemIndex) as string;
+  validateField('Envelope ID', envelopeId, 'uuid');
+  validateField('Return URL', returnUrl, 'url');
+  return await docuSignApiRequest.call(ctx, 'POST', `/envelopes/${envelopeId}/views/edit`, {
+    returnUrl,
+  });
+}
+
+// ============================================================================
+// PowerForm Data Handler
+// ============================================================================
+
+/**
+ * Retrieve form data from PowerForm submissions
+ */
+async function handlePowerFormGetFormData(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const powerFormId = ctx.getNodeParameter('powerFormId', itemIndex) as string;
+  validateField('PowerForm ID', powerFormId, 'uuid');
+  return await docuSignApiRequest.call(ctx, 'GET', `/powerforms/${powerFormId}/form_data`);
+}
+
+// ============================================================================
+// Envelope Custom Field Handlers
+// ============================================================================
+
+async function handleEnvelopeCustomFieldCreate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  const fieldName = ctx.getNodeParameter('fieldName', itemIndex) as string;
+  const fieldValue = ctx.getNodeParameter('fieldValue', itemIndex) as string;
+  const show = ctx.getNodeParameter('show', itemIndex, true) as boolean;
+  const required = ctx.getNodeParameter('required', itemIndex, false) as boolean;
+
+  validateField('Envelope ID', envelopeId, 'uuid');
+  validateField('Field Name', fieldName, 'required');
+
+  const body: IDataObject = {
+    textCustomFields: [
+      {
+        name: fieldName,
+        value: fieldValue,
+        show: show ? 'true' : 'false',
+        required: required ? 'true' : 'false',
+      },
+    ],
+  };
+
+  return await docuSignApiRequest.call(
+    ctx,
+    'POST',
+    `/envelopes/${envelopeId}/custom_fields`,
+    body,
+  );
+}
+
+async function handleEnvelopeCustomFieldGet(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  validateField('Envelope ID', envelopeId, 'uuid');
+  return await docuSignApiRequest.call(ctx, 'GET', `/envelopes/${envelopeId}/custom_fields`);
+}
+
+async function handleEnvelopeCustomFieldUpdate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  const fieldId = ctx.getNodeParameter('fieldId', itemIndex) as string;
+  const updateFields = ctx.getNodeParameter('updateFields', itemIndex, {});
+
+  validateField('Envelope ID', envelopeId, 'uuid');
+  validateField('Field ID', fieldId, 'required');
+
+  const field: IDataObject = { fieldId };
+  if (updateFields.name) {field.name = updateFields.name;}
+  if (updateFields.value !== undefined) {field.value = updateFields.value;}
+  if (updateFields.show !== undefined) {field.show = updateFields.show ? 'true' : 'false';}
+
+  return await docuSignApiRequest.call(
+    ctx,
+    'PUT',
+    `/envelopes/${envelopeId}/custom_fields`,
+    { textCustomFields: [field] },
+  );
+}
+
+async function handleEnvelopeCustomFieldDelete(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  const fieldId = ctx.getNodeParameter('fieldId', itemIndex) as string;
+
+  validateField('Envelope ID', envelopeId, 'uuid');
+  validateField('Field ID', fieldId, 'required');
+
+  return await docuSignApiRequest.call(
+    ctx,
+    'DELETE',
+    `/envelopes/${envelopeId}/custom_fields`,
+    { textCustomFields: [{ fieldId }] },
+  );
+}
+
+// ============================================================================
+// Envelope Attachment Handlers
+// ============================================================================
+
+async function handleEnvelopeAttachmentGetAll(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  validateField('Envelope ID', envelopeId, 'uuid');
+  return await docuSignApiRequest.call(ctx, 'GET', `/envelopes/${envelopeId}/attachments`);
+}
+
+async function handleEnvelopeAttachmentCreate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  const name = ctx.getNodeParameter('name', itemIndex) as string;
+  const data = ctx.getNodeParameter('data', itemIndex) as string;
+  const accessControl = ctx.getNodeParameter('accessControl', itemIndex, 'sender') as string;
+
+  validateField('Envelope ID', envelopeId, 'uuid');
+  validateField('Attachment Name', name, 'required');
+  validateField('Attachment Data', data, 'base64');
+
+  return await docuSignApiRequest.call(ctx, 'PUT', `/envelopes/${envelopeId}/attachments`, {
+    attachments: [{ name, data, accessControl }],
+  });
+}
+
+async function handleEnvelopeAttachmentDelete(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  const attachmentId = ctx.getNodeParameter('attachmentId', itemIndex) as string;
+
+  validateField('Envelope ID', envelopeId, 'uuid');
+  validateField('Attachment ID', attachmentId, 'required');
+
+  return await docuSignApiRequest.call(
+    ctx,
+    'DELETE',
+    `/envelopes/${envelopeId}/attachments/${attachmentId}`,
+  );
+}
+
+// ============================================================================
+// Envelope Document Field Handlers
+// ============================================================================
+
+async function handleEnvelopeDocumentFieldGet(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  const documentId = ctx.getNodeParameter('documentId', itemIndex) as string;
+
+  validateField('Envelope ID', envelopeId, 'uuid');
+  validateField('Document ID', documentId, 'required');
+
+  return await docuSignApiRequest.call(
+    ctx,
+    'GET',
+    `/envelopes/${envelopeId}/documents/${documentId}/fields`,
+  );
+}
+
+async function handleEnvelopeDocumentFieldCreate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  const documentId = ctx.getNodeParameter('documentId', itemIndex) as string;
+  const documentFields = ctx.getNodeParameter('documentFields', itemIndex, {}) as IDataObject;
+
+  validateField('Envelope ID', envelopeId, 'uuid');
+  validateField('Document ID', documentId, 'required');
+
+  const fields = ((documentFields.field as IDataObject[]) || []).map((f) => ({
+    name: f.name,
+    value: f.value,
+  }));
+
+  return await docuSignApiRequest.call(
+    ctx,
+    'POST',
+    `/envelopes/${envelopeId}/documents/${documentId}/fields`,
+    { documentFields: fields },
+  );
+}
+
+async function handleEnvelopeDocumentFieldUpdate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  const documentId = ctx.getNodeParameter('documentId', itemIndex) as string;
+  const documentFields = ctx.getNodeParameter('documentFields', itemIndex, {}) as IDataObject;
+
+  validateField('Envelope ID', envelopeId, 'uuid');
+  validateField('Document ID', documentId, 'required');
+
+  const fields = ((documentFields.field as IDataObject[]) || []).map((f) => ({
+    name: f.name,
+    value: f.value,
+  }));
+
+  return await docuSignApiRequest.call(
+    ctx,
+    'PUT',
+    `/envelopes/${envelopeId}/documents/${documentId}/fields`,
+    { documentFields: fields },
+  );
+}
+
+async function handleEnvelopeDocumentFieldDelete(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  const documentId = ctx.getNodeParameter('documentId', itemIndex) as string;
+
+  validateField('Envelope ID', envelopeId, 'uuid');
+  validateField('Document ID', documentId, 'required');
+
+  return await docuSignApiRequest.call(
+    ctx,
+    'DELETE',
+    `/envelopes/${envelopeId}/documents/${documentId}/fields`,
+  );
+}
+
+// ============================================================================
+// Envelope Email Setting Handlers
+// ============================================================================
+
+async function handleEnvelopeEmailSettingGet(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  validateField('Envelope ID', envelopeId, 'uuid');
+  return await docuSignApiRequest.call(ctx, 'GET', `/envelopes/${envelopeId}/email_settings`);
+}
+
+async function handleEnvelopeEmailSettingCreate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  const replyEmailAddressOverride = ctx.getNodeParameter(
+    'replyEmailAddressOverride',
+    itemIndex,
+    '',
+  ) as string;
+  const replyEmailNameOverride = ctx.getNodeParameter(
+    'replyEmailNameOverride',
+    itemIndex,
+    '',
+  ) as string;
+  const bccEmailAddresses = ctx.getNodeParameter('bccEmailAddresses', itemIndex, '') as string;
+
+  validateField('Envelope ID', envelopeId, 'uuid');
+
+  const body: IDataObject = {};
+  if (replyEmailAddressOverride) {
+    validateField('Reply Email', replyEmailAddressOverride, 'email');
+    body.replyEmailAddressOverride = replyEmailAddressOverride;
+  }
+  if (replyEmailNameOverride) {
+    body.replyEmailNameOverride = replyEmailNameOverride;
+  }
+  if (bccEmailAddresses) {
+    const emails = bccEmailAddresses.split(',').map((e) => e.trim());
+    for (const email of emails) {
+      validateField('BCC Email', email, 'email');
+    }
+    body.bccEmailAddresses = emails.map((email) => ({ bccEmailAddressId: '', email }));
+  }
+
+  return await docuSignApiRequest.call(
+    ctx,
+    'POST',
+    `/envelopes/${envelopeId}/email_settings`,
+    body,
+  );
+}
+
+async function handleEnvelopeEmailSettingUpdate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  const replyEmailAddressOverride = ctx.getNodeParameter(
+    'replyEmailAddressOverride',
+    itemIndex,
+    '',
+  ) as string;
+  const replyEmailNameOverride = ctx.getNodeParameter(
+    'replyEmailNameOverride',
+    itemIndex,
+    '',
+  ) as string;
+  const bccEmailAddresses = ctx.getNodeParameter('bccEmailAddresses', itemIndex, '') as string;
+
+  validateField('Envelope ID', envelopeId, 'uuid');
+
+  const body: IDataObject = {};
+  if (replyEmailAddressOverride) {
+    validateField('Reply Email', replyEmailAddressOverride, 'email');
+    body.replyEmailAddressOverride = replyEmailAddressOverride;
+  }
+  if (replyEmailNameOverride) {
+    body.replyEmailNameOverride = replyEmailNameOverride;
+  }
+  if (bccEmailAddresses) {
+    const emails = bccEmailAddresses.split(',').map((e) => e.trim());
+    for (const email of emails) {
+      validateField('BCC Email', email, 'email');
+    }
+    body.bccEmailAddresses = emails.map((email) => ({ bccEmailAddressId: '', email }));
+  }
+
+  return await docuSignApiRequest.call(
+    ctx,
+    'PUT',
+    `/envelopes/${envelopeId}/email_settings`,
+    body,
+  );
+}
+
+async function handleEnvelopeEmailSettingDelete(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  validateField('Envelope ID', envelopeId, 'uuid');
+  return await docuSignApiRequest.call(ctx, 'DELETE', `/envelopes/${envelopeId}/email_settings`);
+}
+
+// ============================================================================
+// Custom Tab Handlers
+// ============================================================================
+
+async function handleCustomTabCreate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const tabLabel = ctx.getNodeParameter('tabLabel', itemIndex) as string;
+  const type = ctx.getNodeParameter('type', itemIndex) as string;
+  const additionalOptions = ctx.getNodeParameter('additionalOptions', itemIndex, {}) as IDataObject;
+
+  validateField('Tab Label', tabLabel, 'required');
+
+  const body: IDataObject = { tabLabel, type };
+  if (additionalOptions.anchor) {body.anchor = additionalOptions.anchor;}
+  if (additionalOptions.font) {body.font = additionalOptions.font;}
+  if (additionalOptions.bold !== undefined) {body.bold = additionalOptions.bold ? 'true' : 'false';}
+  if (additionalOptions.width) {body.width = additionalOptions.width;}
+  if (additionalOptions.height) {body.height = additionalOptions.height;}
+  if (additionalOptions.required !== undefined) {
+    body.required = additionalOptions.required ? 'true' : 'false';
+  }
+  if (additionalOptions.locked !== undefined) {
+    body.locked = additionalOptions.locked ? 'true' : 'false';
+  }
+
+  return await docuSignApiRequest.call(ctx, 'POST', '/tab_definitions', body);
+}
+
+async function handleCustomTabGet(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const customTabId = ctx.getNodeParameter('customTabId', itemIndex) as string;
+  validateField('Custom Tab ID', customTabId, 'required');
+  return await docuSignApiRequest.call(ctx, 'GET', `/tab_definitions/${customTabId}`);
+}
+
+async function handleCustomTabGetAll(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject | IDataObject[]> {
+  const returnAll = ctx.getNodeParameter('returnAll', itemIndex) as boolean;
+
+  if (returnAll) {
+    return await docuSignApiRequestAllItems.call(
+      ctx,
+      'GET',
+      '/tab_definitions',
+      'tabs',
+      {},
+    );
+  }
+
+  const limit = ctx.getNodeParameter('limit', itemIndex);
+  const response = await docuSignApiRequest.call(ctx, 'GET', '/tab_definitions');
+  const tabs = (response.tabs as IDataObject[]) || [];
+  return tabs.slice(0, limit);
+}
+
+async function handleCustomTabUpdate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const customTabId = ctx.getNodeParameter('customTabId', itemIndex) as string;
+  const updateFields = ctx.getNodeParameter('updateFields', itemIndex, {});
+
+  validateField('Custom Tab ID', customTabId, 'required');
+
+  const body: IDataObject = {};
+  if (updateFields.tabLabel) {body.tabLabel = updateFields.tabLabel;}
+  if (updateFields.font) {body.font = updateFields.font;}
+  if (updateFields.bold !== undefined) {body.bold = updateFields.bold ? 'true' : 'false';}
+  if (updateFields.required !== undefined) {
+    body.required = updateFields.required ? 'true' : 'false';
+  }
+  if (updateFields.locked !== undefined) {body.locked = updateFields.locked ? 'true' : 'false';}
+
+  return await docuSignApiRequest.call(ctx, 'PUT', `/tab_definitions/${customTabId}`, body);
+}
+
+async function handleCustomTabDelete(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const customTabId = ctx.getNodeParameter('customTabId', itemIndex) as string;
+  validateField('Custom Tab ID', customTabId, 'required');
+  return await docuSignApiRequest.call(ctx, 'DELETE', `/tab_definitions/${customTabId}`);
+}
+
+// ============================================================================
+// Contact Handlers
+// ============================================================================
+
+async function handleContactCreate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const email = ctx.getNodeParameter('email', itemIndex) as string;
+  const name = ctx.getNodeParameter('name', itemIndex) as string;
+  const additionalOptions = ctx.getNodeParameter('additionalOptions', itemIndex, {}) as IDataObject;
+
+  validateField('Email', email, 'email');
+  validateField('Name', name, 'required');
+
+  const contact: IDataObject = {
+    name,
+    emails: [email],
+  };
+  if (additionalOptions.organization) {contact.organization = additionalOptions.organization;}
+  if (additionalOptions.shared !== undefined) {
+    contact.shared = additionalOptions.shared ? 'true' : 'false';
+  }
+
+  return await docuSignApiRequest.call(ctx, 'POST', '/contacts', {
+    contacts: [contact],
+  });
+}
+
+async function handleContactGetAll(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject | IDataObject[]> {
+  const returnAll = ctx.getNodeParameter('returnAll', itemIndex) as boolean;
+
+  if (returnAll) {
+    return await docuSignApiRequestAllItems.call(
+      ctx,
+      'GET',
+      '/contacts',
+      'contacts',
+      {},
+    );
+  }
+
+  const limit = ctx.getNodeParameter('limit', itemIndex);
+  const response = await docuSignApiRequest.call(ctx, 'GET', '/contacts', undefined, {
+    count: limit,
+  });
+  return (response.contacts as IDataObject[]) || [];
+}
+
+async function handleContactUpdate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const contactId = ctx.getNodeParameter('contactId', itemIndex) as string;
+  const updateFields = ctx.getNodeParameter('updateFields', itemIndex, {});
+
+  validateField('Contact ID', contactId, 'required');
+
+  const contact: IDataObject = { contactId };
+  if (updateFields.email) {
+    validateField('Email', updateFields.email as string, 'email');
+    contact.emails = [updateFields.email];
+  }
+  if (updateFields.name) {contact.name = updateFields.name;}
+  if (updateFields.organization) {contact.organization = updateFields.organization;}
+  if (updateFields.shared !== undefined) {
+    contact.shared = updateFields.shared ? 'true' : 'false';
+  }
+
+  return await docuSignApiRequest.call(ctx, 'PUT', '/contacts', {
+    contacts: [contact],
+  });
+}
+
+async function handleContactDelete(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const contactId = ctx.getNodeParameter('contactId', itemIndex) as string;
+  validateField('Contact ID', contactId, 'required');
+  return await docuSignApiRequest.call(ctx, 'DELETE', `/contacts/${contactId}`);
+}
+
+// ============================================================================
+// Permission Profile Handlers
+// ============================================================================
+
+async function handlePermissionProfileCreate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const permissionProfileName = ctx.getNodeParameter(
+    'permissionProfileName',
+    itemIndex,
+  ) as string;
+  const settings = ctx.getNodeParameter('settings', itemIndex, {}) as IDataObject;
+
+  validateField('Profile Name', permissionProfileName, 'required');
+
+  const body: IDataObject = { permissionProfileName, settings };
+
+  return await docuSignApiRequest.call(ctx, 'POST', '/permission_profiles', body);
+}
+
+async function handlePermissionProfileGet(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const permissionProfileId = ctx.getNodeParameter('permissionProfileId', itemIndex) as string;
+  validateField('Permission Profile ID', permissionProfileId, 'required');
+  return await docuSignApiRequest.call(
+    ctx,
+    'GET',
+    `/permission_profiles/${permissionProfileId}`,
+  );
+}
+
+async function handlePermissionProfileGetAll(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject | IDataObject[]> {
+  const returnAll = ctx.getNodeParameter('returnAll', itemIndex) as boolean;
+
+  if (returnAll) {
+    return await docuSignApiRequestAllItems.call(
+      ctx,
+      'GET',
+      '/permission_profiles',
+      'permissionProfiles',
+      {},
+    );
+  }
+
+  const limit = ctx.getNodeParameter('limit', itemIndex);
+  const response = await docuSignApiRequest.call(ctx, 'GET', '/permission_profiles');
+  const profiles = (response.permissionProfiles as IDataObject[]) || [];
+  return profiles.slice(0, limit);
+}
+
+async function handlePermissionProfileUpdate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const permissionProfileId = ctx.getNodeParameter('permissionProfileId', itemIndex) as string;
+  const updateFields = ctx.getNodeParameter('updateFields', itemIndex, {});
+
+  validateField('Permission Profile ID', permissionProfileId, 'required');
+
+  const body: IDataObject = {};
+  if (updateFields.permissionProfileName) {
+    body.permissionProfileName = updateFields.permissionProfileName;
+  }
+
+  const settings: IDataObject = {};
+  if (updateFields.canSendEnvelope !== undefined) {
+    settings.canSendEnvelope = updateFields.canSendEnvelope ? 'true' : 'false';
+  }
+  if (updateFields.canManageTemplates !== undefined) {
+    settings.canManageTemplates = updateFields.canManageTemplates ? 'true' : 'false';
+  }
+  if (updateFields.canManageAccount !== undefined) {
+    settings.canManageAccount = updateFields.canManageAccount ? 'true' : 'false';
+  }
+  if (updateFields.canManageUsers !== undefined) {
+    settings.canManageUsers = updateFields.canManageUsers ? 'true' : 'false';
+  }
+  if (Object.keys(settings).length > 0) {
+    body.settings = settings;
+  }
+
+  return await docuSignApiRequest.call(
+    ctx,
+    'PUT',
+    `/permission_profiles/${permissionProfileId}`,
+    body,
+  );
+}
+
+async function handlePermissionProfileDelete(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const permissionProfileId = ctx.getNodeParameter('permissionProfileId', itemIndex) as string;
+  validateField('Permission Profile ID', permissionProfileId, 'required');
+  return await docuSignApiRequest.call(
+    ctx,
+    'DELETE',
+    `/permission_profiles/${permissionProfileId}`,
+  );
+}
+
+// ============================================================================
+// Account Custom Field Handlers
+// ============================================================================
+
+async function handleAccountCustomFieldCreate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const fieldName = ctx.getNodeParameter('fieldName', itemIndex) as string;
+  const fieldType = ctx.getNodeParameter('fieldType', itemIndex) as string;
+  const additionalOptions = ctx.getNodeParameter('additionalOptions', itemIndex, {}) as IDataObject;
+
+  validateField('Field Name', fieldName, 'required');
+
+  const field: IDataObject = { name: fieldName };
+
+  if (fieldType === 'list') {
+    const listItems = (additionalOptions.listItems as string) || '';
+    field.listItems = listItems.split(',').map((item: string) => item.trim());
+  }
+  if (additionalOptions.required !== undefined) {
+    field.required = additionalOptions.required ? 'true' : 'false';
+  }
+  if (additionalOptions.show !== undefined) {
+    field.show = additionalOptions.show ? 'true' : 'false';
+  }
+
+  const key = fieldType === 'list' ? 'listCustomFields' : 'textCustomFields';
+  return await docuSignApiRequest.call(ctx, 'POST', '/custom_fields', { [key]: [field] });
+}
+
+async function handleAccountCustomFieldGetAll(
+  ctx: IExecuteFunctions,
+): Promise<IDataObject> {
+  return await docuSignApiRequest.call(ctx, 'GET', '/custom_fields');
+}
+
+async function handleAccountCustomFieldUpdate(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const fieldId = ctx.getNodeParameter('fieldId', itemIndex) as string;
+  const updateFields = ctx.getNodeParameter('updateFields', itemIndex, {});
+
+  validateField('Field ID', fieldId, 'required');
+
+  const field: IDataObject = { fieldId };
+  if (updateFields.name) {field.name = updateFields.name;}
+  if (updateFields.required !== undefined) {
+    field.required = updateFields.required ? 'true' : 'false';
+  }
+  if (updateFields.show !== undefined) {
+    field.show = updateFields.show ? 'true' : 'false';
+  }
+  if (updateFields.listItems) {
+    field.listItems = (updateFields.listItems as string).split(',').map((item: string) => item.trim());
+  }
+
+  return await docuSignApiRequest.call(ctx, 'PUT', '/custom_fields', {
+    textCustomFields: [field],
+  });
+}
+
+async function handleAccountCustomFieldDelete(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const fieldId = ctx.getNodeParameter('fieldId', itemIndex) as string;
+  validateField('Field ID', fieldId, 'required');
+  return await docuSignApiRequest.call(ctx, 'DELETE', `/custom_fields/${fieldId}`);
+}
+
+// ============================================================================
+// Connect Event Handlers
+// ============================================================================
+
+async function handleConnectEventGetFailures(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject | IDataObject[]> {
+  const returnAll = ctx.getNodeParameter('returnAll', itemIndex) as boolean;
+
+  if (returnAll) {
+    return await docuSignApiRequestAllItems.call(
+      ctx,
+      'GET',
+      '/connect/failures',
+      'failures',
+      {},
+    );
+  }
+
+  const limit = ctx.getNodeParameter('limit', itemIndex);
+  const response = await docuSignApiRequest.call(ctx, 'GET', '/connect/failures', undefined, {
+    count: limit,
+  });
+  return (response.failures as IDataObject[]) || [];
+}
+
+async function handleConnectEventGetLogs(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject | IDataObject[]> {
+  const returnAll = ctx.getNodeParameter('returnAll', itemIndex) as boolean;
+  const filters = ctx.getNodeParameter('filters', itemIndex, {});
+
+  const qs: Record<string, string | number> = {};
+  if (filters.fromDate) {qs.from_date = filters.fromDate as string;}
+  if (filters.toDate) {qs.to_date = filters.toDate as string;}
+
+  if (returnAll) {
+    return await docuSignApiRequestAllItems.call(
+      ctx,
+      'GET',
+      '/connect/logs',
+      'logs',
+      qs,
+    );
+  }
+
+  const limit = ctx.getNodeParameter('limit', itemIndex);
+  qs.count = limit;
+  const response = await docuSignApiRequest.call(ctx, 'GET', '/connect/logs', undefined, qs);
+  return (response.logs as IDataObject[]) || [];
+}
+
+async function handleConnectEventRetry(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const failureId = ctx.getNodeParameter('failureId', itemIndex) as string;
+  validateField('Failure ID', failureId, 'required');
+  return await docuSignApiRequest.call(ctx, 'PUT', `/connect/failures/${failureId}`);
+}
+
+// ============================================================================
 // Main Node Class
 // ============================================================================
 
@@ -2782,6 +3595,18 @@ export class DocuSign implements INodeType {
               responseData = await handleEnvelopeCorrect(this, i);
               break;
 
+            case 'getFormData':
+              responseData = await handleEnvelopeGetFormData(this, i);
+              break;
+
+            case 'createSenderView':
+              responseData = await handleEnvelopeCreateSenderView(this, i);
+              break;
+
+            case 'createEditView':
+              responseData = await handleEnvelopeCreateEditView(this, i);
+              break;
+
             default:
               throw new NodeApiError(
                 this.getNode(),
@@ -2888,6 +3713,10 @@ export class DocuSign implements INodeType {
 
             case 'delete':
               responseData = await handlePowerFormDelete(this, i);
+              break;
+
+            case 'getFormData':
+              responseData = await handlePowerFormGetFormData(this, i);
               break;
 
             default:
@@ -3328,6 +4157,240 @@ export class DocuSign implements INodeType {
           switch (operation) {
             case 'getWorkflows':
               responseData = await handleIdVerificationGetWorkflows(this);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
+        }
+
+        // ==========================================================================
+        // Envelope Custom Field Resource
+        // ==========================================================================
+        else if (resource === 'envelopeCustomField') {
+          switch (operation) {
+            case 'create':
+              responseData = await handleEnvelopeCustomFieldCreate(this, i);
+              break;
+
+            case 'get':
+              responseData = await handleEnvelopeCustomFieldGet(this, i);
+              break;
+
+            case 'update':
+              responseData = await handleEnvelopeCustomFieldUpdate(this, i);
+              break;
+
+            case 'delete':
+              responseData = await handleEnvelopeCustomFieldDelete(this, i);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
+        }
+
+        // ==========================================================================
+        // Envelope Attachment Resource
+        // ==========================================================================
+        else if (resource === 'envelopeAttachment') {
+          switch (operation) {
+            case 'getAll':
+              responseData = await handleEnvelopeAttachmentGetAll(this, i);
+              break;
+
+            case 'create':
+              responseData = await handleEnvelopeAttachmentCreate(this, i);
+              break;
+
+            case 'delete':
+              responseData = await handleEnvelopeAttachmentDelete(this, i);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
+        }
+
+        // ==========================================================================
+        // Envelope Document Field Resource
+        // ==========================================================================
+        else if (resource === 'envelopeDocumentField') {
+          switch (operation) {
+            case 'get':
+              responseData = await handleEnvelopeDocumentFieldGet(this, i);
+              break;
+
+            case 'create':
+              responseData = await handleEnvelopeDocumentFieldCreate(this, i);
+              break;
+
+            case 'update':
+              responseData = await handleEnvelopeDocumentFieldUpdate(this, i);
+              break;
+
+            case 'delete':
+              responseData = await handleEnvelopeDocumentFieldDelete(this, i);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
+        }
+
+        // ==========================================================================
+        // Envelope Email Setting Resource
+        // ==========================================================================
+        else if (resource === 'envelopeEmailSetting') {
+          switch (operation) {
+            case 'get':
+              responseData = await handleEnvelopeEmailSettingGet(this, i);
+              break;
+
+            case 'create':
+              responseData = await handleEnvelopeEmailSettingCreate(this, i);
+              break;
+
+            case 'update':
+              responseData = await handleEnvelopeEmailSettingUpdate(this, i);
+              break;
+
+            case 'delete':
+              responseData = await handleEnvelopeEmailSettingDelete(this, i);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
+        }
+
+        // ==========================================================================
+        // Custom Tab Resource
+        // ==========================================================================
+        else if (resource === 'customTab') {
+          switch (operation) {
+            case 'create':
+              responseData = await handleCustomTabCreate(this, i);
+              break;
+
+            case 'get':
+              responseData = await handleCustomTabGet(this, i);
+              break;
+
+            case 'getAll':
+              responseData = await handleCustomTabGetAll(this, i);
+              break;
+
+            case 'update':
+              responseData = await handleCustomTabUpdate(this, i);
+              break;
+
+            case 'delete':
+              responseData = await handleCustomTabDelete(this, i);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
+        }
+
+        // ==========================================================================
+        // Contact Resource
+        // ==========================================================================
+        else if (resource === 'contact') {
+          switch (operation) {
+            case 'create':
+              responseData = await handleContactCreate(this, i);
+              break;
+
+            case 'getAll':
+              responseData = await handleContactGetAll(this, i);
+              break;
+
+            case 'update':
+              responseData = await handleContactUpdate(this, i);
+              break;
+
+            case 'delete':
+              responseData = await handleContactDelete(this, i);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
+        }
+
+        // ==========================================================================
+        // Permission Profile Resource
+        // ==========================================================================
+        else if (resource === 'permissionProfile') {
+          switch (operation) {
+            case 'create':
+              responseData = await handlePermissionProfileCreate(this, i);
+              break;
+
+            case 'get':
+              responseData = await handlePermissionProfileGet(this, i);
+              break;
+
+            case 'getAll':
+              responseData = await handlePermissionProfileGetAll(this, i);
+              break;
+
+            case 'update':
+              responseData = await handlePermissionProfileUpdate(this, i);
+              break;
+
+            case 'delete':
+              responseData = await handlePermissionProfileDelete(this, i);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
+        }
+
+        // ==========================================================================
+        // Account Custom Field Resource
+        // ==========================================================================
+        else if (resource === 'accountCustomField') {
+          switch (operation) {
+            case 'create':
+              responseData = await handleAccountCustomFieldCreate(this, i);
+              break;
+
+            case 'getAll':
+              responseData = await handleAccountCustomFieldGetAll(this);
+              break;
+
+            case 'update':
+              responseData = await handleAccountCustomFieldUpdate(this, i);
+              break;
+
+            case 'delete':
+              responseData = await handleAccountCustomFieldDelete(this, i);
+              break;
+
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
+        }
+
+        // ==========================================================================
+        // Connect Event Resource
+        // ==========================================================================
+        else if (resource === 'connectEvent') {
+          switch (operation) {
+            case 'getFailures':
+              responseData = await handleConnectEventGetFailures(this, i);
+              break;
+
+            case 'getLogs':
+              responseData = await handleConnectEventGetLogs(this, i);
+              break;
+
+            case 'retry':
+              responseData = await handleConnectEventRetry(this, i);
               break;
 
             default:

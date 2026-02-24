@@ -492,3 +492,107 @@ export interface DocuSignWorkflow {
     }>;
   };
 }
+
+/**
+ * Envelope custom field
+ */
+export interface DocuSignEnvelopeCustomField {
+  fieldId?: string;
+  name: string;
+  value?: string;
+  show?: string;
+  required?: string;
+}
+
+/**
+ * Custom tab (field) definition
+ */
+export interface DocuSignCustomTab {
+  customTabId?: string;
+  tabLabel: string;
+  type?: string;
+  anchor?: string;
+  font?: string;
+  bold?: string;
+  width?: number;
+  height?: number;
+  required?: string;
+  locked?: string;
+}
+
+/**
+ * Address book contact
+ */
+export interface DocuSignContact {
+  contactId?: string;
+  name?: string;
+  emails?: string[];
+  organization?: string;
+  shared?: string;
+  signingGroupId?: string;
+}
+
+/**
+ * Connect webhook event log entry
+ */
+export interface DocuSignConnectEvent {
+  failureId?: string;
+  connectConfigId?: string;
+  envelopeId?: string;
+  status?: string;
+  statusMessage?: string;
+  created?: string;
+  retryCount?: number;
+}
+
+/**
+ * Permission profile for account users
+ */
+export interface DocuSignPermissionProfile {
+  permissionProfileId?: string;
+  permissionProfileName?: string;
+  settings?: Record<string, string>;
+}
+
+/**
+ * Envelope file attachment
+ */
+export interface DocuSignEnvelopeAttachment {
+  attachmentId?: string;
+  name?: string;
+  data?: string;
+  accessControl?: string;
+  attachmentType?: string;
+}
+
+/**
+ * Account-level custom field definition
+ */
+export interface DocuSignAccountCustomField {
+  fieldId?: string;
+  name?: string;
+  type?: string;
+  required?: string;
+  show?: string;
+  listItems?: string[];
+}
+
+/**
+ * Document-level custom field
+ */
+export interface DocuSignEnvelopeDocumentField {
+  name?: string;
+  value?: string;
+}
+
+/**
+ * Envelope email settings override
+ */
+export interface DocuSignEnvelopeEmailSetting {
+  replyEmailAddressOverride?: string;
+  replyEmailNameOverride?: string;
+  bccEmailAddresses?: Array<{
+    bccEmailAddressId?: string;
+    email?: string;
+  }>;
+}

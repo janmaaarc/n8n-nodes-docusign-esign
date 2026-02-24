@@ -38,6 +38,12 @@ export const powerFormOperations: INodeProperties = {
       action: 'Get many PowerForms',
       description: 'Get a list of PowerForms',
     },
+    {
+      name: 'Get Form Data',
+      value: 'getFormData',
+      action: 'Get PowerForm form data',
+      description: 'Retrieve form data from PowerForm submissions',
+    },
   ],
   default: 'getAll',
 };
@@ -138,7 +144,7 @@ export const powerFormFields: INodeProperties[] = [
     displayOptions: {
       show: {
         resource: ['powerForm'],
-        operation: ['get', 'delete'],
+        operation: ['get', 'delete', 'getFormData'],
       },
     },
     default: '',

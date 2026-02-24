@@ -16,6 +16,7 @@ nodes/DocuSign/
 ├── constants.ts              # API URLs, status codes, defaults
 ├── types.ts                  # TypeScript interfaces
 └── resources/                # UI field definitions by resource
+    ├── accountCustomField.ts
     ├── accountGroup.ts
     ├── accountUser.ts
     ├── brand.ts
@@ -24,13 +25,21 @@ nodes/DocuSign/
     ├── comments.ts
     ├── compositeTemplate.ts
     ├── connectConfig.ts
+    ├── connectEvent.ts
+    ├── contact.ts
+    ├── customTab.ts
     ├── documentGeneration.ts
     ├── envelope.ts
+    ├── envelopeAttachment.ts
+    ├── envelopeCustomField.ts
+    ├── envelopeDocumentField.ts
+    ├── envelopeEmailSetting.ts
     ├── envelopeLock.ts
     ├── envelopeTransfer.ts
     ├── folder.ts
     ├── idVerification.ts
     ├── paymentTab.ts
+    ├── permissionProfile.ts
     ├── powerForm.ts
     ├── recipientTabs.ts
     ├── scheduledRouting.ts
@@ -48,16 +57,27 @@ test/
 ├── setup/
 │   ├── mockContext.ts           # Shared mock context factory
 │   └── constants.ts             # Shared test constants
-└── features/                    # Feature-specific tests (72 tests)
+└── features/                    # Feature-specific tests (149 tests)
+    ├── accountCustomField.test.ts
     ├── accountGroup.test.ts
     ├── accountUser.test.ts
     ├── chunkedUpload.test.ts
     ├── comments.test.ts
     ├── compositeTemplate.test.ts
     ├── connectConfig.test.ts
+    ├── connectEvent.test.ts
+    ├── contact.test.ts
+    ├── customTab.test.ts
+    ├── envelopeAttachment.test.ts
+    ├── envelopeCustomField.test.ts
+    ├── envelopeDocumentField.test.ts
+    ├── envelopeEmailSetting.test.ts
     ├── envelopeTransfer.test.ts
+    ├── envelopeViews.test.ts
     ├── idVerification.test.ts
     ├── paymentTab.test.ts
+    ├── permissionProfile.test.ts
+    ├── powerFormData.test.ts
     ├── recipientTabs.test.ts
     ├── scheduledRouting.test.ts
     ├── supplementalDoc.test.ts

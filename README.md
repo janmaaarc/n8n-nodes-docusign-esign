@@ -9,78 +9,15 @@ An [n8n](https://n8n.io/) community node package for [DocuSign](https://www.docu
 
 ## Features
 
-- **Full Envelope Management** - Create, send, void, delete, and download documents
-- **Embedded Signing** - Generate signing URLs for iframe integration in your app
-- **Multiple Signers & Documents** - Support for multiple signers with routing order and multiple documents per envelope
-- **Merge Fields** - Populate document placeholders like `{{FirstName}}` with dynamic values
-- **Advanced Tab Types** - Signature, initials, date, text, checkboxes, radio groups, dropdowns, numbers, formulas, signer attachments
-- **Reminders & Expiration** - Automatic reminder emails and envelope expiration deadlines
-- **Recipient Authentication** - Access code, phone, or SMS verification before signing
-- **Envelope Correction** - Fix sent envelopes without voiding via correction URL
-- **Custom Fields** - Add metadata fields to envelopes for tracking and reporting
-- **SMS Delivery** - Send signing notifications via SMS in addition to email
-- **Template CRUD** - Create, get, update, and delete templates with documents and roles
-- **Bulk Send** - Send envelopes to 100+ recipients via bulk send lists
-- **PowerForms** - Create self-service signing links from templates
-- **Folder Management** - List folders, get items, move envelopes, and search across system folders
-- **Signing Groups** - Shared signing where any group member can sign on behalf of the group
-- **Brand Management** - Custom branding for envelopes and signing experience
-- **Document Generation** - Populate Word templates with dynamic data (DocGen)
-- **Envelope Lock Management** - Prevent concurrent editing of envelopes
-- **Composite Templates** - Create envelopes combining multiple server templates with inline recipients
-- **Envelope Transfer Rules** - Manage envelope ownership transfer between users
-- **Supplemental Documents** - Attach terms & conditions or disclosures with acknowledgment options
-- **Scheduled Routing** - Schedule envelope delivery for a future date
-- **Recipient Tabs** - Get and update tab values for specific recipients on sent envelopes
-- **Payment Tabs** - Collect payments during signing with ISO 4217 currency support
-- **Template Recipients** - Full recipient management (add, update, remove) on templates
-- **ID Verification** - List available identity verification workflows for the account
-- **Connect Configuration** - Manage DocuSign Connect webhook configurations programmatically
-- **Account Users** - Create, get, update, and delete users in the DocuSign account
-- **Account Groups** - Manage permission groups for user access control
-- **Chunked Uploads** - Upload large documents (>25MB) in chunks with session management
-- **Comments API** - Add and retrieve comments on envelopes with thread support
-- **Envelope Form Data** - Retrieve form field data entered by recipients
-- **Envelope Views** - Generate sender view and edit view URLs for DocuSign UI
-- **Envelope Custom Fields** - CRUD custom metadata fields on individual envelopes
-- **Envelope Attachments** - Manage file attachments on envelopes
-- **Envelope Document Fields** - CRUD custom fields on individual documents within envelopes
-- **Envelope Email Settings** - Control email behavior (reply-to, BCC) per envelope
-- **Custom Tabs** - Manage reusable tab definitions for consistent field formatting
-- **Contacts** - Manage DocuSign address book contacts
-- **Permission Profiles** - Manage account permission profiles for user access control
-- **Account Custom Fields** - Manage account-level custom field definitions
-- **Connect Events** - Monitor and retry DocuSign Connect delivery events
-- **PowerForm Data** - Retrieve PowerForm submission data
-- **Envelope Notifications** - Manage reminder and expiration settings on envelopes
-- **Template Documents** - Add, get, list, and remove documents on templates
-- **Template Custom Fields** - CRUD custom metadata fields on templates
-- **Template Locks** - Lock/unlock templates to prevent concurrent editing
-- **Template Notifications** - Manage default reminder and expiration on templates
-- **Billing** - Retrieve billing plan, invoices, and payment history
-- **Cloud Storage** - Browse connected cloud storage providers and files
-- **Workspaces** - Manage collaboration workspaces with file operations
-- **Email Archive** - Manage BCC compliance email archiving
-- **Diagnostics** - Manage API request logging for troubleshooting
-- **Notary** - Remote online notarization profile and jurisdiction management
-- **Trust Service Providers** - List EU eIDAS electronic seal providers
-- **Envelope Purge** - Purge document content from completed envelopes (GDPR)
-- **Account Settings** - Get and update account-level configuration
-- **Template Views** - Generate edit URLs for templates
-- **Reporting** - Account reports and permission profiles
-- **Account Signatures** - Manage stamp and signature images
-- **Account Watermarks** - Configure document watermarks
-- **Captive Recipients** - Manage embedded recipient sessions
-- **Consumer Disclosures** - ESIGN Act disclosure management
-- **Notary Journals** - View notary journal entries
-- **Template Bulk Recipients** - CSV-based bulk recipient upload
-- **Webhook Trigger** - Real-time event notifications via DocuSign Connect
-- **Regional Support** - NA, EU, AU, and CA regions for production environments
-- **Rate Limiting** - Built-in retry logic with exponential backoff
-- **Input Validation** - RFC 5322 compliant email validation, secure URL validation (blocks internal networks)
-- **Token Caching** - Efficient JWT token caching with automatic refresh
-- **Type Safety** - Full TypeScript support with comprehensive type definitions
-- **Security Hardened** - HMAC-SHA256 webhook signature verification, replay attack protection
+- **8 nodes** covering DocuSign eSignature, Web Forms, Monitor, Click, Maestro, Navigator, and Admin APIs
+- **54 eSignature resources** — full envelope lifecycle, templates, bulk send, recipients, tabs, payments, webhooks, and more (see [Resources & Operations](#resources--operations))
+- **Embedded signing** — generate signing URLs for iframe integration, including cross-origin focused view
+- **Merge fields** — populate document placeholders like `{{FirstName}}` dynamically
+- **Webhook triggers** — eSignature, Click, and Maestro trigger nodes with HMAC-SHA256 signature verification and replay attack protection
+- **Multiple auth methods** — JWT (token caching + auto-refresh) and OAuth2 Authorization Code Grant
+- **Security hardened** — SSRF-safe URL validation, RFC 5322 email validation, UUID validation, input sanitization
+- **Rate limit handling** — exponential backoff retry on 429/5xx responses
+- **Regional support** — NA, EU, AU, CA for production environments
 
 ## Requirements
 
@@ -344,254 +281,40 @@ Webhook trigger node for receiving real-time events via DocuSign Connect.
 
 ## Example Workflows
 
-### 1. Send Contract for Signature
+### Send Contract for Signature
 
 ```
-HTTP Request (Get Contract) > DocuSign (Create Envelope) > Slack (Notify Team)
+HTTP Request (Get Contract) → DocuSign (Create Envelope) → Slack (Notify Team)
 ```
 
-Send a document for signature and notify your team.
-
-### 2. Signed Document to Cloud Storage
+### Auto-Save Signed Documents
 
 ```
-DocuSign Trigger (envelope-completed) > DocuSign (Download Document) > Google Drive (Upload)
+DocuSign Trigger (envelope-completed) → DocuSign (Download Document) → Google Drive (Upload)
 ```
 
-Automatically save signed documents to cloud storage.
-
-### 3. Multi-Party Agreement
+### Embedded Signing in Your App
 
 ```
-Form Trigger > DocuSign (Create Envelope with Multiple Signers) > Wait for Completion
+Form Trigger → DocuSign (Create Envelope, Embedded=true) → DocuSign (Create Signing URL) → Redirect User
 ```
 
-Create envelopes with multiple signers using routing order.
-
-### 4. Template-Based Onboarding
+### Dynamic Document with Merge Fields
 
 ```
-New Employee (Webhook) > DocuSign (Create From Template) > HR System (Update)
+Form Trigger → DocuSign (Create Envelope with Merge Fields {{FirstName}}, {{Company}}) → Notify User
 ```
 
-Use templates for standardized documents like onboarding forms.
-
-### 5. Embedded Signing in Your App
+### Bulk Send to Many Recipients
 
 ```
-Form Trigger > DocuSign (Create Envelope, Embedded=true) > DocuSign (Create Signing URL) > Redirect User
+Form Trigger → DocuSign (Bulk Send: Create List) → DocuSign (Bulk Send: Send) → DocuSign (Bulk Send: Get Batch Status)
 ```
 
-Generate signing URLs for embedding DocuSign in your application.
-
-### 6. Dynamic Document with Merge Fields
+### Monitor & Retry Failed Webhooks
 
 ```
-Form Trigger > DocuSign (Create Envelope with Merge Fields) > Notify User
-```
-
-Populate document placeholders like `{{FirstName}}`, `{{Company}}`, `{{Date}}` with form data. Put placeholders in your PDF, then map them in the Merge Fields section.
-
-### 7. Envelope Status Dashboard
-
-```
-Schedule Trigger > DocuSign (Get Many, status=sent) > Google Sheets (Update)
-```
-
-Track pending envelopes and update a dashboard.
-
-### 8. Bulk Send with Template
-
-```
-Form Trigger > DocuSign (Bulk Send: Create List) > DocuSign (Bulk Send: Send) > DocuSign (Bulk Send: Get Batch Status)
-```
-
-Build a recipient list and send the same envelope to hundreds of recipients at once.
-
-### 9. Manage Connect Webhooks
-
-```
-Schedule Trigger > DocuSign (Connect Config: Get Many) > IF (Config Missing) > DocuSign (Connect Config: Create)
-```
-
-Programmatically manage DocuSign Connect webhook configurations.
-
-### 10. Payment Collection
-
-```
-Form Trigger > DocuSign (Payment Tab: Create Envelope) > DocuSign Trigger (envelope-completed) > Update Payment System
-```
-
-Collect payments during the signing process with ISO 4217 currency support.
-
-### 11. Large Document Upload
-
-```
-HTTP Request (Get File) > DocuSign (Chunked Upload: Initiate) > DocuSign (Chunked Upload: Upload Chunk) > DocuSign (Chunked Upload: Commit)
-```
-
-Upload documents larger than 25MB using chunked upload sessions.
-
-### 12. Envelope Form Data Extraction
-
-```
-DocuSign Trigger (envelope-completed) > DocuSign (Envelope: Get Form Data) > Google Sheets (Append Row)
-```
-
-Extract form field data from completed envelopes and store in a spreadsheet.
-
-### 13. Permission Profile Management
-
-```
-Schedule Trigger > DocuSign (Permission Profile: Get Many) > IF (Missing Profile) > DocuSign (Permission Profile: Create)
-```
-
-Ensure required permission profiles exist in the account.
-
-### 14. Contact Sync
-
-```
-CRM Trigger (New Contact) > DocuSign (Contact: Create) > Slack (Notify)
-```
-
-Sync contacts from your CRM to DocuSign's address book.
-
-### 15. Connect Event Monitoring
-
-```
-Schedule Trigger > DocuSign (Connect Event: Get Failures) > IF (Has Failures) > DocuSign (Connect Event: Retry) > Slack (Alert)
-```
-
-Monitor and auto-retry failed DocuSign Connect webhook deliveries.
-
-### 16. Billing Report
-
-```
-Schedule Trigger > DocuSign (Billing: Get Plan) > DocuSign (Billing: Get Many Invoices) > Google Sheets (Update Dashboard)
-```
-
-Retrieve billing plan details and invoice history for reporting.
-
-### 17. Template Document Management
-
-```
-HTTP Request (Get Document) > DocuSign (Template Document: Add) > DocuSign (Template Document: Get Many) > Slack (Confirm)
-```
-
-Upload new documents to templates and verify they were added.
-
-### 18. Email Archive Compliance
-
-```
-Schedule Trigger > DocuSign (Email Archive: Get Many) > IF (Missing Address) > DocuSign (Email Archive: Create) > Slack (Alert)
-```
-
-Ensure BCC compliance email addresses are configured for audit trails.
-
-### 19. API Diagnostics Monitoring
-
-```
-Schedule Trigger > DocuSign (Diagnostics: Get Settings) > IF (Logging Disabled) > DocuSign (Diagnostics: Update Settings, enable=true)
-```
-
-Monitor and ensure API request logging is enabled for troubleshooting.
-
-### Importable Workflow: Send Document for Signature
-
-Copy and import this JSON into n8n via **Workflows > Import from URL/File**:
-
-```json
-{
-  "name": "Send Document for Signature",
-  "nodes": [
-    {
-      "parameters": {},
-      "name": "Start",
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
-      "position": [240, 300]
-    },
-    {
-      "parameters": {
-        "resource": "envelope",
-        "operation": "create",
-        "emailSubject": "Please sign this document",
-        "signerEmail": "={{$json.signerEmail}}",
-        "signerName": "={{$json.signerName}}",
-        "document": "={{$json.documentBase64}}",
-        "documentName": "contract.pdf",
-        "sendImmediately": true
-      },
-      "name": "DocuSign",
-      "type": "n8n-nodes-docusign-esign.docuSign",
-      "typeVersion": 1,
-      "position": [460, 300],
-      "credentials": {
-        "docuSignApi": {
-          "id": "1",
-          "name": "DocuSign API"
-        }
-      }
-    }
-  ],
-  "connections": {
-    "Start": {
-      "main": [[{ "node": "DocuSign", "type": "main", "index": 0 }]]
-    }
-  }
-}
-```
-
-### Importable Workflow: Auto-Save Signed Documents
-
-```json
-{
-  "name": "Auto-Save Signed Documents",
-  "nodes": [
-    {
-      "parameters": {
-        "events": ["envelope-completed"],
-        "verifySignature": true,
-        "replayProtection": true
-      },
-      "name": "DocuSign Trigger",
-      "type": "n8n-nodes-docusign-esign.docuSignTrigger",
-      "typeVersion": 1,
-      "position": [240, 300],
-      "webhookId": "docusign-webhook",
-      "credentials": {
-        "docuSignApi": {
-          "id": "1",
-          "name": "DocuSign API"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "resource": "envelope",
-        "operation": "downloadDocument",
-        "envelopeId": "={{$json.envelopeId}}",
-        "documentId": "combined",
-        "binaryPropertyName": "data"
-      },
-      "name": "Download Document",
-      "type": "n8n-nodes-docusign-esign.docuSign",
-      "typeVersion": 1,
-      "position": [460, 300],
-      "credentials": {
-        "docuSignApi": {
-          "id": "1",
-          "name": "DocuSign API"
-        }
-      }
-    }
-  ],
-  "connections": {
-    "DocuSign Trigger": {
-      "main": [[{ "node": "Download Document", "type": "main", "index": 0 }]]
-    }
-  }
-}
+Schedule Trigger → DocuSign (Connect Event: Get Failures) → IF (Has Failures) → DocuSign (Connect Event: Retry) → Slack (Alert)
 ```
 
 ## Filtering

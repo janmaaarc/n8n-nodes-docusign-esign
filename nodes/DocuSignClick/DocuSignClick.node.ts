@@ -25,16 +25,16 @@ export class DocuSignClick implements INodeType {
 
     for (let i = 0; i < items.length; i++) {
       try {
-        const resource = this.getNodeParameter('resource', i) as string;
-        const operation = this.getNodeParameter('operation', i) as string;
+        const resource = this.getNodeParameter('resource', i);
+        const operation = this.getNodeParameter('operation', i);
         let responseData: IDataObject | IDataObject[];
 
         if (resource === 'clickwrap') {
           if (operation === 'getAll') {
             const returnAll = this.getNodeParameter('returnAll', i) as boolean;
-            const limit = returnAll ? undefined : (this.getNodeParameter('limit', i) as number);
+            const limit = returnAll ? undefined : (this.getNodeParameter('limit', i));
             const qs: Record<string, string | number> = {};
-            if (limit) qs.count = limit;
+            if (limit) {qs.count = limit;}
             responseData = await clickApiRequest.call(this, 'GET', '/clickwraps', undefined, qs);
           } else if (operation === 'get') {
             const clickwrapId = this.getNodeParameter('clickwrapId', i) as string;
@@ -44,7 +44,7 @@ export class DocuSignClick implements INodeType {
             responseData = await clickApiRequest.call(this, 'POST', '/clickwraps', { clickwrapName, status: 'active' });
           } else if (operation === 'update') {
             const clickwrapId = this.getNodeParameter('clickwrapId', i) as string;
-            const updateFields = this.getNodeParameter('updateFields', i, {}) as IDataObject;
+            const updateFields = this.getNodeParameter('updateFields', i, {});
             responseData = await clickApiRequest.call(this, 'PUT', `/clickwraps/${clickwrapId}`, updateFields);
           } else if (operation === 'delete') {
             const clickwrapId = this.getNodeParameter('clickwrapId', i) as string;
@@ -56,9 +56,9 @@ export class DocuSignClick implements INodeType {
           const clickwrapId = this.getNodeParameter('clickwrapId', i) as string;
           if (operation === 'getAll') {
             const returnAll = this.getNodeParameter('returnAll', i) as boolean;
-            const limit = returnAll ? undefined : (this.getNodeParameter('limit', i) as number);
+            const limit = returnAll ? undefined : (this.getNodeParameter('limit', i));
             const qs: Record<string, string | number> = {};
-            if (limit) qs.count = limit;
+            if (limit) {qs.count = limit;}
             responseData = await clickApiRequest.call(this, 'GET', `/clickwraps/${clickwrapId}/agreements`, undefined, qs);
           } else {
             throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });

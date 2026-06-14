@@ -25,19 +25,19 @@ export class DocuSignNavigator implements INodeType {
 
     for (let i = 0; i < items.length; i++) {
       try {
-        const resource = this.getNodeParameter('resource', i) as string;
-        const operation = this.getNodeParameter('operation', i) as string;
+        const resource = this.getNodeParameter('resource', i);
+        const operation = this.getNodeParameter('operation', i);
         let responseData: IDataObject | IDataObject[];
 
         if (resource === 'navigatorAgreement') {
           if (operation === 'getAll') {
             const returnAll = this.getNodeParameter('returnAll', i) as boolean;
-            const limit = returnAll ? undefined : (this.getNodeParameter('limit', i) as number);
+            const limit = returnAll ? undefined : (this.getNodeParameter('limit', i));
             const searchOptions = this.getNodeParameter('searchOptions', i, {}) as IDataObject;
             const qs: Record<string, string | number> = {};
-            if (limit) qs.count = limit;
-            if (searchOptions.searchText) qs.search_text = searchOptions.searchText as string;
-            if (searchOptions.agreementType) qs.agreement_type = searchOptions.agreementType as string;
+            if (limit) {qs.count = limit;}
+            if (searchOptions.searchText) {qs.search_text = searchOptions.searchText as string;}
+            if (searchOptions.agreementType) {qs.agreement_type = searchOptions.agreementType as string;}
             responseData = await navigatorApiRequest.call(this, 'GET', '/agreements', undefined, qs);
           } else if (operation === 'get') {
             const agreementId = this.getNodeParameter('agreementId', i) as string;

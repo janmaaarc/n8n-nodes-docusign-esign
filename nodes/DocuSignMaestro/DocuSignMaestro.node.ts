@@ -25,16 +25,16 @@ export class DocuSignMaestro implements INodeType {
 
     for (let i = 0; i < items.length; i++) {
       try {
-        const resource = this.getNodeParameter('resource', i) as string;
-        const operation = this.getNodeParameter('operation', i) as string;
+        const resource = this.getNodeParameter('resource', i);
+        const operation = this.getNodeParameter('operation', i);
         let responseData: IDataObject | IDataObject[];
 
         if (resource === 'maestroWorkflow') {
           if (operation === 'getAll') {
             const returnAll = this.getNodeParameter('returnAll', i) as boolean;
-            const limit = returnAll ? undefined : (this.getNodeParameter('limit', i) as number);
+            const limit = returnAll ? undefined : (this.getNodeParameter('limit', i));
             const qs: Record<string, string | number> = {};
-            if (limit) qs.count = limit;
+            if (limit) {qs.count = limit;}
             responseData = await maestroApiRequest.call(this, 'GET', '/workflows', undefined, qs);
           } else if (operation === 'get') {
             const workflowId = this.getNodeParameter('workflowId', i) as string;
@@ -43,7 +43,11 @@ export class DocuSignMaestro implements INodeType {
             const workflowId = this.getNodeParameter('workflowId', i) as string;
             const instanceDataStr = this.getNodeParameter('instanceData', i, '{}') as string;
             let instanceData: IDataObject = {};
-            try { instanceData = JSON.parse(instanceDataStr) as IDataObject; } catch {}
+            try {
+              instanceData = JSON.parse(instanceDataStr) as IDataObject;
+            } catch (_e) {
+              // leave instanceData as empty object if JSON is invalid
+            }
             responseData = await maestroApiRequest.call(this, 'POST', `/workflows/${workflowId}/instances`, instanceData);
           } else {
             throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
@@ -52,9 +56,9 @@ export class DocuSignMaestro implements INodeType {
           const workflowId = this.getNodeParameter('workflowId', i) as string;
           if (operation === 'getAll') {
             const returnAll = this.getNodeParameter('returnAll', i) as boolean;
-            const limit = returnAll ? undefined : (this.getNodeParameter('limit', i) as number);
+            const limit = returnAll ? undefined : (this.getNodeParameter('limit', i));
             const qs: Record<string, string | number> = {};
-            if (limit) qs.count = limit;
+            if (limit) {qs.count = limit;}
             responseData = await maestroApiRequest.call(this, 'GET', `/workflows/${workflowId}/instances`, undefined, qs);
           } else if (operation === 'get') {
             const instanceId = this.getNodeParameter('instanceId', i) as string;

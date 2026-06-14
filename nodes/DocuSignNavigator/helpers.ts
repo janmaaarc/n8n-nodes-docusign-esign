@@ -47,7 +47,7 @@ export async function navigatorApiRequest(
       const statusCode =
         (error as { statusCode?: number }).statusCode ||
         (error as { response?: { statusCode?: number } }).response?.statusCode;
-      if (statusCode && statusCode >= 400 && statusCode < 500 && statusCode !== 429) break;
+      if (statusCode && statusCode >= 400 && statusCode < 500 && statusCode !== 429) {break;}
       if (attempt < MAX_RETRIES) {
         await delay(BASE_RETRY_DELAY_MS * Math.pow(2, attempt));
         continue;
@@ -55,5 +55,5 @@ export async function navigatorApiRequest(
       break;
     }
   }
-  throw new NodeApiError(this.getNode(), lastError as unknown as JsonObject);
+  throw new NodeApiError(this.getNode(), lastError as JsonObject);
 }

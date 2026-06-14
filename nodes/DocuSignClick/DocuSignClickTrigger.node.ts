@@ -4,13 +4,12 @@ import type {
   INodeType,
   INodeTypeDescription,
   IWebhookResponseData,
-  IDataObject,
 } from 'n8n-workflow';
 import { NodeApiError } from 'n8n-workflow';
 import * as crypto from 'crypto';
 
 function verifySignature(payload: string, signature: string, secret: string): boolean {
-  if (!payload || !signature || !secret) return false;
+  if (!payload || !signature || !secret) {return false;}
   try {
     const hmac = crypto.createHmac('sha256', secret);
     const digest = hmac.update(payload).digest('base64');
@@ -90,7 +89,7 @@ export class DocuSignClickTrigger implements INodeType {
       }
 
       const signature = this.getHeaderData()['x-docusign-signature-1'] as string;
-      const body = this.getBodyData() as IDataObject;
+      const body = this.getBodyData();
       const payload = JSON.stringify(body);
 
       if (!signature || !verifySignature(payload, signature, secret)) {
@@ -98,7 +97,7 @@ export class DocuSignClickTrigger implements INodeType {
       }
     }
 
-    const body = this.getBodyData() as IDataObject;
+    const body = this.getBodyData();
     const selectedEvents = this.getNodeParameter('events') as string[];
     const event = body.event as string;
 

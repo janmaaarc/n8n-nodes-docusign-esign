@@ -25,16 +25,16 @@ export class DocuSignMonitor implements INodeType {
 
     for (let i = 0; i < items.length; i++) {
       try {
-        const resource = this.getNodeParameter('resource', i) as string;
-        const operation = this.getNodeParameter('operation', i) as string;
+        const resource = this.getNodeParameter('resource', i);
+        const operation = this.getNodeParameter('operation', i);
         let responseData: IDataObject | IDataObject[];
 
         if (resource === 'eventStream') {
           if (operation === 'get') {
             const cursor = this.getNodeParameter('cursor', i, '') as string;
-            const limit = this.getNodeParameter('limit', i, 100) as number;
+            const limit = this.getNodeParameter('limit', i, 100);
             const qs: Record<string, string | number> = { limit };
-            if (cursor) qs.cursor = cursor;
+            if (cursor) {qs.cursor = cursor;}
             responseData = await monitorApiRequest.call(this, 'GET', '/api/v2.0/datasets/monitor.activity/stream', undefined, qs);
           } else if (operation === 'listDatasets') {
             responseData = await monitorApiRequest.call(this, 'GET', '/api/v2.0/datasets');

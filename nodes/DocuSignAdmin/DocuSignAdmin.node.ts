@@ -39,8 +39,8 @@ export class DocuSignAdmin implements INodeType {
       try {
         const credentials = await this.getCredentials('docuSignAdminApi');
         const orgId = credentials.organizationId as string;
-        const resource = this.getNodeParameter('resource', i) as string;
-        const operation = this.getNodeParameter('operation', i) as string;
+        const resource = this.getNodeParameter('resource', i);
+        const operation = this.getNodeParameter('operation', i);
         let responseData: IDataObject | IDataObject[];
 
         if (resource === 'adminOrganization') {
@@ -56,9 +56,9 @@ export class DocuSignAdmin implements INodeType {
         } else if (resource === 'adminUser') {
           if (operation === 'getAll') {
             const returnAll = this.getNodeParameter('returnAll', i) as boolean;
-            const limit = returnAll ? undefined : (this.getNodeParameter('limit', i) as number);
+            const limit = returnAll ? undefined : (this.getNodeParameter('limit', i));
             const qs: Record<string, string | number> = {};
-            if (limit) qs.count = limit;
+            if (limit) {qs.count = limit;}
             responseData = await adminApiRequest.call(this, 'GET', `/organizations/${orgId}/users`, undefined, qs);
           } else if (operation === 'get') {
             const userId = this.getNodeParameter('userId', i) as string;
@@ -80,7 +80,7 @@ export class DocuSignAdmin implements INodeType {
           } else if (operation === 'update') {
             const userId = this.getNodeParameter('userId', i) as string;
             requireNonEmpty(this.getNode(), 'User ID', userId);
-            const updateFields = this.getNodeParameter('updateFields', i, {}) as IDataObject;
+            const updateFields = this.getNodeParameter('updateFields', i, {});
             responseData = await adminApiRequest.call(this, 'PUT', `/organizations/${orgId}/users/${userId}`, updateFields);
           } else if (operation === 'delete') {
             const userId = this.getNodeParameter('userId', i) as string;

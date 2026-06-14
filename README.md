@@ -736,6 +736,30 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Changelog
 
+### v2.0.0
+
+**6 New Product API Nodes:**
+- **DocuSign Web Forms** - Manage web forms and signing instances (Get Many, Get, Delete, Create Instance, Get Instance)
+- **DocuSign Monitor** - Stream activity events for audit/compliance (cursor-based event stream, list datasets)
+- **DocuSign Click + Click Trigger** - Manage clickwrap agreements (CRUD, list agreements, webhook trigger for agree/decline/expire events)
+- **DocuSign Maestro + Maestro Trigger** - Workflow Builder automation (CRUD, trigger workflows, manage instances, webhook trigger)
+- **DocuSign Navigator** - Agreement intelligence with AI-extracted data (Get Many, Get, Get Provisions)
+- **DocuSign Admin** - Organization and user management (org/user/account CRUD)
+
+**9 eSignature Quick Wins (existing node):**
+- **Organization resource** - List and get DocuSign organizations
+- **Focused View** - Embedded signing in cross-origin iframes
+- **WhatsApp delivery** - Send signing notifications via WhatsApp
+- **Workflow pause/resume** - Pause and resume envelope routing workflows
+- **Connect pause/resume** - Enable/disable Connect event publishing
+- **ID Verification evidence** - Retrieve identity verification evidence per recipient
+- **Notary jurisdictions** - List valid notary jurisdictions
+- **Conditional routing rules** - Configure envelope workflow routing conditions
+
+**New credentials:** DocuSignWebFormsApi, DocuSignMonitorApi, DocuSignClickApi, DocuSignMaestroApi, DocuSignNavigatorApi, DocuSignAdminApi — each with least-privilege OAuth2 scopes
+
+604 total tests, 54 resource definitions (eSignature), ~200+ operations
+
 ### v1.0.0
 
 **Production-Ready Release:**

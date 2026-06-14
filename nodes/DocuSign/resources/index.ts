@@ -73,6 +73,7 @@ import {
   trustServiceProviderFields,
 } from './trustServiceProvider';
 import { workspaceOperations, workspaceFields } from './workspace';
+import { organizationOperations, organizationFields } from './organization';
 
 /**
  * Resource selector for the DocuSign node
@@ -348,6 +349,11 @@ export const resourceProperty: INodeProperties = {
       value: 'workspace',
       description: 'Manage collaboration workspaces and files',
     },
+    {
+      name: 'Organization',
+      value: 'organization',
+      description: 'List and get DocuSign organizations linked to the account',
+    },
   ],
   default: 'envelope',
 };
@@ -409,6 +415,7 @@ export const allOperations: INodeProperties[] = [
   templateViewOperations,
   trustServiceProviderOperations,
   workspaceOperations,
+  organizationOperations,
 ];
 
 /**
@@ -468,4 +475,5 @@ export const allFields: INodeProperties[] = [
   ...templateViewFields,
   ...trustServiceProviderFields,
   ...workspaceFields,
+  ...organizationFields,
 ];

@@ -1,0 +1,86 @@
+import type { INodeProperties } from 'n8n-workflow';
+
+export const adminUserOperations: INodeProperties = {
+  displayName: 'Operation',
+  name: 'operation',
+  type: 'options',
+  noDataExpression: true,
+  displayOptions: { show: { resource: ['adminUser'] } },
+  options: [
+    { name: 'Create', value: 'create', action: 'Create a user', description: 'Add a new user to the organization' },
+    { name: 'Delete', value: 'delete', action: 'Delete a user', description: 'Remove a user from the organization' },
+    { name: 'Get', value: 'get', action: 'Get a user', description: 'Get details of a specific user' },
+    { name: 'Get Many', value: 'getAll', action: 'Get many users', description: 'List users in the organization' },
+    { name: 'Update', value: 'update', action: 'Update a user', description: 'Update a user\'s details' },
+  ],
+  default: 'getAll',
+};
+
+export const adminUserFields: INodeProperties[] = [
+  {
+    displayName: 'Email',
+    name: 'email',
+    type: 'string',
+    required: true,
+    displayOptions: { show: { resource: ['adminUser'], operation: ['create'] } },
+    default: '',
+    placeholder: 'user@example.com',
+    description: 'Email address of the new user',
+  },
+  {
+    displayName: 'First Name',
+    name: 'firstName',
+    type: 'string',
+    required: true,
+    displayOptions: { show: { resource: ['adminUser'], operation: ['create'] } },
+    default: '',
+    description: 'First name of the new user',
+  },
+  {
+    displayName: 'Last Name',
+    name: 'lastName',
+    type: 'string',
+    required: true,
+    displayOptions: { show: { resource: ['adminUser'], operation: ['create'] } },
+    default: '',
+    description: 'Last name of the new user',
+  },
+  {
+    displayName: 'User ID',
+    name: 'userId',
+    type: 'string',
+    required: true,
+    displayOptions: { show: { resource: ['adminUser'], operation: ['get', 'update', 'delete'] } },
+    default: '',
+    description: 'The ID of the user',
+  },
+  {
+    displayName: 'Update Fields',
+    name: 'updateFields',
+    type: 'collection',
+    placeholder: 'Add Field',
+    default: {},
+    displayOptions: { show: { resource: ['adminUser'], operation: ['update'] } },
+    options: [
+      { displayName: 'First Name', name: 'firstName', type: 'string', default: '', description: 'New first name' },
+      { displayName: 'Last Name', name: 'lastName', type: 'string', default: '', description: 'New last name' },
+    ],
+  },
+  {
+    displayName: 'Return All',
+    name: 'returnAll',
+    type: 'boolean',
+    displayOptions: { show: { resource: ['adminUser'], operation: ['getAll'] } },
+    default: false,
+    description: 'Whether to return all results or only up to a given limit',
+  },
+  {
+    displayName: 'Limit',
+    name: 'limit',
+    type: 'number',
+    displayOptions: { show: { resource: ['adminUser'], operation: ['getAll'], returnAll: [false] } },
+    typeOptions: { minValue: 1, maxValue: 100 },
+    default: 50,
+    description: 'Max number of results to return',
+  },
+];

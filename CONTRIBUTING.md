@@ -55,6 +55,24 @@ n8n-nodes-docusign-esign/
 └── dist/                  # Compiled output (generated)
 ```
 
+### Adding a New Product API Node
+
+Each DocuSign product API lives in its own node directory following this pattern:
+
+1. **Credential** (`credentials/DocuSignXApi.credentials.ts`) — Extend `oAuth2Api`, add `environment` + `accountId`/`organizationId`, set product-specific `scope`, include a `test` property pointing to a simple GET endpoint.
+
+2. **Helpers** (`nodes/DocuSignX/helpers.ts`) — Export `xApiRequest()` using the same retry/error pattern as the eSignature helpers. Build the base URL from `credentials.environment`.
+
+3. **Resources** (`nodes/DocuSignX/resources/`) — One file per resource with `*Operations` (INodeProperties options object) and `*Fields` (INodeProperties[]). Export both from `resources/index.ts`.
+
+4. **Main node** (`nodes/DocuSignX/DocuSignX.node.ts`) — Implement `INodeType`, reference credential, import from resources/index.ts, dispatch resource/operation in `execute()`.
+
+5. **Icon** — Copy `nodes/DocuSign/docusign.svg` into the new node directory (never symlink).
+
+6. **Registration** — Add credential and node paths to `package.json` `n8n.credentials[]` and `n8n.nodes[]`.
+
+For webhook-based product APIs (Click, Maestro), also create a `*Trigger.node.ts` following `DocuSignTrigger.node.ts` with HMAC-SHA256 verification using `crypto.createHmac('sha256', secret)`.
+
 ### Making Changes
 
 1. Create a feature branch:

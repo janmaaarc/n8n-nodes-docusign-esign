@@ -27,6 +27,18 @@ export const scheduledRoutingOperations: INodeProperties = {
       description: 'Get the workflow/routing rules for an envelope',
     },
     {
+      name: 'Pause Workflow',
+      value: 'pauseWorkflow',
+      action: 'Pause envelope workflow',
+      description: 'Pause the workflow on an in-flight envelope',
+    },
+    {
+      name: 'Resume Workflow',
+      value: 'resumeWorkflow',
+      action: 'Resume envelope workflow',
+      description: 'Resume a paused envelope workflow',
+    },
+    {
       name: 'Update',
       value: 'update',
       action: 'Update scheduled routing',
@@ -49,7 +61,7 @@ export const scheduledRoutingFields: INodeProperties[] = [
     displayOptions: {
       show: {
         resource: ['scheduledRouting'],
-        operation: ['get', 'update', 'delete'],
+        operation: ['get', 'update', 'delete', 'pauseWorkflow', 'resumeWorkflow'],
       },
     },
     default: '',

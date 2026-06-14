@@ -234,3 +234,20 @@ export const TAB_TYPES = [
 export const LOCK_TYPES = [
   { name: 'Edit', value: 'edit', description: 'Lock for editing' },
 ];
+
+// ─── New Product API Base URLs ─────────────────────────────────────────────
+
+export const WEB_FORMS_BASE_URL_PRODUCTION = 'https://apps.docusign.com/api/webforms/v1.1';
+export const WEB_FORMS_BASE_URL_DEMO = 'https://apps-d.docusign.com/api/webforms/v1.1';
+
+export const MONITOR_BASE_URL_PRODUCTION = 'https://lens.docusign.net';
+export const MONITOR_BASE_URL_DEMO = 'https://lens-d.docusign.net';
+
+export const MAESTRO_BASE_URL_PRODUCTION = 'https://api.docusign.com/v1';
+export const MAESTRO_BASE_URL_DEMO = 'https://api-d.docusign.com/v1';
+
+export const NAVIGATOR_BASE_URL_PRODUCTION = 'https://api.docusign.com/navigator/v1';
+export const NAVIGATOR_BASE_URL_DEMO = 'https://api-d.docusign.com/navigator/v1';
+
+export const ADMIN_BASE_URL_PRODUCTION = 'https://api.docusign.net/Management/v2';
+export const ADMIN_BASE_URL_DEMO = 'https://api-d.docusign.net/Management/v2';

@@ -15,6 +15,12 @@ export const idVerificationOperations: INodeProperties = {
   },
   options: [
     {
+      name: 'Get Evidence',
+      value: 'getEvidence',
+      action: 'Get ID verification evidence',
+      description: 'Get identity verification evidence for a recipient',
+    },
+    {
       name: 'Get Workflows',
       value: 'getWorkflows',
       action: 'Get IDV workflows',
@@ -28,6 +34,35 @@ export const idVerificationOperations: INodeProperties = {
  * ID Verification fields
  */
 export const idVerificationFields: INodeProperties[] = [
+  {
+    displayName: 'Envelope ID',
+    name: 'envelopeId',
+    type: 'string',
+    required: true,
+    displayOptions: {
+      show: {
+        resource: ['idVerification'],
+        operation: ['getEvidence'],
+      },
+    },
+    default: '',
+    description: 'The ID of the envelope',
+  },
+  {
+    displayName: 'Recipient ID',
+    name: 'recipientId',
+    type: 'string',
+    required: true,
+    displayOptions: {
+      show: {
+        resource: ['idVerification'],
+        operation: ['getEvidence'],
+      },
+    },
+    default: '',
+    description: 'The ID of the recipient whose identity verification evidence to retrieve',
+  },
+
   // No additional fields needed for getWorkflows — it uses the account context
   {
     displayName: 'Info',

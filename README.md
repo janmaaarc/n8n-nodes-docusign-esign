@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI](https://github.com/janmaaarc/n8n-nodes-docusign-esign/actions/workflows/ci.yml/badge.svg)](https://github.com/janmaaarc/n8n-nodes-docusign-esign/actions/workflows/ci.yml)
 
-An [n8n](https://n8n.io/) community node for [DocuSign](https://www.docusign.com/) - the world's leading eSignature platform for sending documents for signature and managing envelopes.
+An [n8n](https://n8n.io/) community node package for [DocuSign](https://www.docusign.com/) — covering eSignature, Web Forms, Monitor, Click (Clickwrap), Maestro (Workflow Builder), Navigator (Agreement Intelligence), and Admin APIs.
 
 ## Features
 
@@ -155,12 +155,13 @@ The main node for interacting with the DocuSign eSignature API.
 | **Composite Template** | Create Envelope |
 | **Envelope Transfer** | Get Rules, Create Rule, Update Rule, Delete Rule |
 | **Supplemental Document** | Create Envelope |
-| **Scheduled Routing** | Get, Update, Delete |
+| **Scheduled Routing** | Get, Update, Delete, Pause Workflow, Resume Workflow |
 | **Recipient Tabs** | Get, Update |
 | **Payment Tab** | Create Envelope |
 | **Template Recipients** | Create, Get Many, Update, Delete |
-| **ID Verification** | Get Workflows |
-| **Connect Configuration** | Create, Get, Get Many, Update, Delete |
+| **ID Verification** | Get Workflows, Get Evidence |
+| **Connect Configuration** | Create, Get, Get Many, Update, Delete, Pause, Resume |
+| **Organization** | Get Many, Get |
 | **Account User** | Create, Get, Get Many, Update, Delete |
 | **Account Group** | Create, Get Many, Update, Delete |
 | **Chunked Upload** | Initiate, Upload Chunk, Commit |
@@ -221,6 +222,105 @@ The main node for interacting with the DocuSign eSignature API.
 | **Payment Collection** | Collect payments during signing (USD, EUR, GBP, CAD, AUD, JPY) |
 | **Supplemental Documents** | Attach terms & conditions with configurable acknowledgment |
 | **Scheduled Send** | Schedule envelope delivery for a future date |
+
+#### Additional Envelope Options (v2.0.0)
+
+| Option | Description |
+|--------|-------------|
+| **WhatsApp Delivery** | Send signing notifications via WhatsApp |
+| **Focused View** | Create embedded signing URL with cross-origin iframe support (`frameAncestors`, `messageOrigins`) |
+| **Routing Rules** | Configure conditional workflow routing with expressions |
+
+---
+
+### DocuSign Web Forms
+
+Manage DocuSign Web Forms and create signing instances.
+
+**Credential:** `DocuSign Web Forms API`
+
+| Resource | Operations |
+|----------|------------|
+| **Web Form** | Get Many, Get, Delete |
+| **Web Form Instance** | Create, Get |
+
+---
+
+### DocuSign Monitor
+
+Stream DocuSign activity events for audit and compliance workflows.
+
+**Credential:** `DocuSign Monitor API`
+
+| Resource | Operations |
+|----------|------------|
+| **Event Stream** | Get Events (cursor-based pagination), List Datasets |
+
+---
+
+### DocuSign Click
+
+Manage clickwrap agreements and user agreement records.
+
+**Credential:** `DocuSign Click API`
+
+| Resource | Operations |
+|----------|------------|
+| **Clickwrap** | Create, Get, Get Many, Update, Delete |
+| **Agreement** | Get Many |
+
+### DocuSign Click Trigger
+
+Webhook trigger for DocuSign Click events.
+
+**Events:** `agreement-created`, `agreement-agreed`, `agreement-declined`, `agreement-expired`
+
+---
+
+### DocuSign Maestro
+
+Automate DocuSign Maestro (Workflow Builder) workflows and instances.
+
+**Credential:** `DocuSign Maestro API`
+
+| Resource | Operations |
+|----------|------------|
+| **Workflow** | Get, Get Many, Trigger |
+| **Workflow Instance** | Get, Get Many, Cancel |
+
+### DocuSign Maestro Trigger
+
+Webhook trigger for DocuSign Maestro workflow events.
+
+**Events:** `workflow-instance-started`, `workflow-instance-completed`, `workflow-instance-failed`
+
+---
+
+### DocuSign Navigator
+
+Access AI-extracted agreement intelligence data.
+
+**Credential:** `DocuSign Navigator API`
+
+| Resource | Operations |
+|----------|------------|
+| **Agreement** | Get Many, Get, Get Provisions |
+
+---
+
+### DocuSign Admin
+
+Manage DocuSign organizations, accounts, and users.
+
+**Credential:** `DocuSign Admin API`
+
+| Resource | Operations |
+|----------|------------|
+| **Organization** | Get Many, Get |
+| **User** | Create, Get, Get Many, Update, Delete |
+| **Account** | Get Many |
+
+---
 
 ### DocuSign Trigger
 

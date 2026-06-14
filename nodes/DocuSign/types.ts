@@ -798,3 +798,76 @@ export interface DocuSignTemplateBulkRecipient {
   email?: string;
   name?: string;
 }
+
+// ─── New Product API Types ─────────────────────────────────────────────────
+
+export interface IWebForm {
+  formId: string;
+  name: string;
+  status: string;
+  components?: IDataObject[];
+}
+
+export interface IWebFormInstance {
+  instanceId: string;
+  formId: string;
+  instanceToken: string;
+  returnUrl?: string;
+}
+
+export interface IMonitorEvent {
+  eventId: string;
+  timestamp: string;
+  accountId: string;
+  userId?: string;
+  event: string;
+  data?: IDataObject;
+}
+
+export interface IClickwrap {
+  clickwrapId: string;
+  clickwrapName: string;
+  status: string;
+  versionNumber?: number;
+  documents?: IDataObject[];
+}
+
+export interface IClickAgreement {
+  agreementId: string;
+  status: string;
+  signerIp?: string;
+  agreedOn?: string;
+  clickwrapId: string;
+}
+
+export interface IMaestroWorkflow {
+  id: string;
+  name: string;
+  status: string;
+  stages?: IDataObject[];
+}
+
+export interface IMaestroInstance {
+  id: string;
+  workflowId: string;
+  status: string;
+  startedAt?: string;
+  completedAt?: string;
+}
+
+export interface INavigatorAgreement {
+  id: string;
+  type?: string;
+  parties?: IDataObject[];
+  provisions?: IDataObject[];
+  metadata?: IDataObject;
+}
+
+export interface IAdminUser {
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  status: string;
+  memberships?: IDataObject[];
+}

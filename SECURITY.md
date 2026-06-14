@@ -96,6 +96,14 @@ This node implements several security measures:
 
 ## Security Changelog
 
+### v2.0.0
+- Six new OAuth2 credential types, each using least-privilege scopes per product API
+- Click and Maestro trigger nodes include HMAC-SHA256 webhook signature verification (same pattern as DocuSign Trigger)
+- Webhook secrets for Click and Maestro stored in credential `webhookSecret` field (password type)
+- Organization-scoped credentials (Monitor, Navigator, Admin) require explicit `organizationId` — no account-level fallback
+- Admin API credential scopes: `user_read user_write organization_read account_read` (no signature scope — org-management only)
+- All new product API helpers use the same retry/error sanitization pattern as eSignature helpers
+
 ### v1.0.0
 - Consumer disclosure langCode path injection protection (encodeURIComponent)
 - Cloud storage serviceId/folderId path injection protection (encodeURIComponent)

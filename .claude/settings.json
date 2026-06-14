@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /Users/janmarccoloma/Documents/MyProjects/projects/n8n-nodes-docusign status:*)",
+      "WebFetch(domain:www.postman.com)",
+      "WebFetch(domain:docusign.github.io)",
+      "Read(//tmp/n8n-docusign/nodes/DocuSign/resources/**)",
+      "Bash(awk 'NR>=4953 && NR<=4958' nodes/DocuSign/DocuSign.node.ts)",
+      "Bash(xargs -0 -I{} sh -c 'cd \"\"{}\"\" && npm test 2>&1')"
+    ],
+    "additionalDirectories": [
+      "/tmp",
+      "/Users/janmarccoloma/Documents/Documents - Jan's MacBook Air/MyProjects/projects/n8n-nodes-docusign/test/features"
+    ]
+  }
+}

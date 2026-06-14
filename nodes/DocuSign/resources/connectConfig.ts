@@ -39,6 +39,18 @@ export const connectConfigOperations: INodeProperties = {
       description: 'Get all webhook configurations',
     },
     {
+      name: 'Pause',
+      value: 'pause',
+      action: 'Pause a Connect configuration',
+      description: 'Pause event publishing for a Connect configuration',
+    },
+    {
+      name: 'Resume',
+      value: 'resume',
+      action: 'Resume a Connect configuration',
+      description: 'Resume event publishing for a Connect configuration',
+    },
+    {
       name: 'Update',
       value: 'update',
       action: 'Update a Connect configuration',
@@ -142,7 +154,7 @@ export const connectConfigFields: INodeProperties[] = [
     ],
   },
 
-  // Get / Delete fields
+  // Get / Delete / Pause / Resume fields
   {
     displayName: 'Connect ID',
     name: 'connectId',
@@ -151,7 +163,7 @@ export const connectConfigFields: INodeProperties[] = [
     displayOptions: {
       show: {
         resource: ['connectConfig'],
-        operation: ['get', 'delete'],
+        operation: ['get', 'delete', 'pause', 'resume'],
       },
     },
     default: '',

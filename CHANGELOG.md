@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-06-14
+
+### Added
+
+#### New Product API Nodes
+
+- **DocuSign Web Forms** (`docuSignWebFormsApi`) — Manage web forms and signing instances
+  - Web Form: Get Many, Get, Delete
+  - Web Form Instance: Create, Get
+
+- **DocuSign Monitor** (`docuSignMonitorApi`) — Stream activity events for audit and compliance
+  - Event Stream: Get Events (cursor-based), List Datasets
+
+- **DocuSign Click** (`docuSignClickApi`) — Manage clickwrap agreements
+  - Clickwrap: Create, Get, Get Many, Update, Delete
+  - Agreement: Get Many
+  - **DocuSign Click Trigger** — Webhook trigger for agreement events (created, agreed, declined, expired)
+
+- **DocuSign Maestro** (`docuSignMaestroApi`) — Workflow Builder automation
+  - Workflow: Get, Get Many, Trigger
+  - Workflow Instance: Get, Get Many, Cancel
+  - **DocuSign Maestro Trigger** — Webhook trigger for instance events (started, completed, failed)
+
+- **DocuSign Navigator** (`docuSignNavigatorApi`) — Agreement intelligence (AI-extracted data)
+  - Agreement: Get Many, Get, Get Provisions
+
+- **DocuSign Admin** (`docuSignAdminApi`) — Organization and user management
+  - Organization: Get Many, Get
+  - User: Create, Get, Get Many, Update, Delete
+  - Account: Get Many
+
+#### New eSignature Quick Wins (existing node)
+
+- **Organization resource** — List and get DocuSign organizations linked to the account
+- **Focused View** (envelope operation) — Embedded signing in cross-origin iframes with `frameAncestors`/`messageOrigins`
+- **WhatsApp delivery** — Send signing notifications via WhatsApp in addition to email
+- **Envelope workflow pause/resume** — Pause and resume envelope routing workflows via Scheduled Routing resource
+- **Connect pause/resume** — Enable/disable event publishing for Connect webhook configurations
+- **ID Verification evidence** — Retrieve identity verification evidence for a specific recipient
+- **Conditional routing rules** — Configure workflow routing rules with condition expressions
+
+#### New Credentials
+
+- `DocuSignWebFormsApi` — OAuth2 for Web Forms API (scopes: `webforms_read webforms_instance_read webforms_instance_write`)
+- `DocuSignMonitorApi` — OAuth2 for Monitor API (scope: `impersonation`)
+- `DocuSignClickApi` — OAuth2 for Click API (scopes: `click.manage click.send`)
+- `DocuSignMaestroApi` — OAuth2 for Maestro API (scopes: `signature aow_manage`)
+- `DocuSignNavigatorApi` — OAuth2 for Navigator API (scope: `signature`)
+- `DocuSignAdminApi` — OAuth2 for Admin API (scopes: `user_read user_write organization_read account_read`)
+
+---
+
 ## [1.0.0] - 2026-03-27
 
 ### Added

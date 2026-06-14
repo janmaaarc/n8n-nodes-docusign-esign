@@ -37,11 +37,16 @@ export function createMockExecuteContext(overrides: MockContextOverrides = {}) {
       };
       return paramMap[name] ?? defaultValue;
     },
-    getCredentials: async () => ({
-      environment: 'demo',
-      accountId: 'test-account-id',
-      region: 'na',
-    }),
+    getCredentials: async (credentialName?: string) => {
+      const base = { environment: 'demo', accountId: 'test-account-id', region: 'na' };
+      if (credentialName === 'docuSignMonitorApi') return { ...base, organizationId: 'test-org-id-0000-0000-000000000000' };
+      if (credentialName === 'docuSignAdminApi') return { ...base, organizationId: 'test-org-id-0000-0000-000000000000' };
+      if (credentialName === 'docuSignNavigatorApi') return { ...base };
+      if (credentialName === 'docuSignWebFormsApi') return { ...base };
+      if (credentialName === 'docuSignClickApi') return { ...base, webhookSecret: '' };
+      if (credentialName === 'docuSignMaestroApi') return { ...base, webhookSecret: '' };
+      return base;
+    },
     helpers: {
       httpRequestWithAuthentication: async (_cred: string, opts?: Record<string, unknown>) => {
         if (overrides.httpError) {

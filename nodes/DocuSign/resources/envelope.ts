@@ -123,6 +123,12 @@ export const envelopeOperations: INodeProperties = {
       action: 'Create edit view URL',
       description: 'Generate a URL to edit the envelope in the DocuSign UI',
     },
+    {
+      name: 'Create Focused View',
+      value: 'createFocusedView',
+      action: 'Create focused signing URL',
+      description: 'Generate a URL for embedded signing in a cross-origin iframe',
+    },
   ],
   default: 'create',
 };
@@ -864,6 +870,73 @@ export const envelopeFields: INodeProperties[] = [
           },
         ],
       },
+      {
+        displayName: 'WhatsApp Delivery',
+        name: 'whatsAppDelivery',
+        type: 'fixedCollection',
+        default: {},
+        description:
+          'Send signing notification via WhatsApp in addition to email. Requires WhatsApp delivery to be enabled in your DocuSign account.',
+        options: [
+          {
+            name: 'whatsApp',
+            displayName: 'WhatsApp Settings',
+            values: [
+              {
+                displayName: 'Country Code',
+                name: 'countryCode',
+                type: 'string',
+                default: '1',
+                placeholder: '1',
+                description:
+                  'Numeric country code (e.g., 1 for US/Canada, 44 for UK). Do not include + symbol.',
+              },
+              {
+                displayName: 'Phone Number',
+                name: 'phoneNumber',
+                type: 'string',
+                default: '',
+                required: true,
+                placeholder: '5551234567',
+                description: 'WhatsApp phone number without country code',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        displayName: 'Routing Rules',
+        name: 'routingRules',
+        type: 'fixedCollection',
+        typeOptions: {
+          multipleValues: true,
+        },
+        default: {},
+        description: 'Add conditional workflow routing rules to the envelope',
+        options: [
+          {
+            name: 'rules',
+            displayName: 'Rule',
+            values: [
+              {
+                displayName: 'Routing Order',
+                name: 'routingOrder',
+                type: 'number',
+                default: 1,
+                description: 'The routing order step this rule applies to',
+              },
+              {
+                displayName: 'Condition Expression',
+                name: 'conditionExpression',
+                type: 'string',
+                default: '',
+                placeholder: 'env.EnvelopeStatus.Status == "Declined"',
+                description: 'The condition that triggers this routing rule',
+              },
+            ],
+          },
+        ],
+      },
     ],
   },
 
@@ -1385,5 +1458,110 @@ export const envelopeFields: INodeProperties[] = [
     default: '',
     placeholder: 'https://yourapp.com/complete',
     description: 'URL to redirect to after the action is complete',
+  },
+
+  // ==========================================================================
+  // Focused View (embedded signing for iframe)
+  // ==========================================================================
+  {
+    displayName: 'Envelope ID',
+    name: 'envelopeId',
+    type: 'string',
+    required: true,
+    displayOptions: {
+      show: {
+        resource: ['envelope'],
+        operation: ['createFocusedView'],
+      },
+    },
+    default: '',
+    description: 'The ID of the envelope to create a focused view for',
+  },
+  {
+    displayName: 'Signer Email',
+    name: 'signerEmail',
+    type: 'string',
+    required: true,
+    displayOptions: {
+      show: {
+        resource: ['envelope'],
+        operation: ['createFocusedView'],
+      },
+    },
+    default: '',
+    placeholder: 'signer@example.com',
+    description: 'Email address of the signer (must match a recipient in the envelope)',
+  },
+  {
+    displayName: 'Signer Name',
+    name: 'signerName',
+    type: 'string',
+    required: true,
+    displayOptions: {
+      show: {
+        resource: ['envelope'],
+        operation: ['createFocusedView'],
+      },
+    },
+    default: '',
+    placeholder: 'John Doe',
+    description: 'Name of the signer (must match a recipient in the envelope)',
+  },
+  {
+    displayName: 'Return URL',
+    name: 'returnUrl',
+    type: 'string',
+    required: true,
+    displayOptions: {
+      show: {
+        resource: ['envelope'],
+        operation: ['createFocusedView'],
+      },
+    },
+    default: '',
+    placeholder: 'https://yourapp.com/signing-complete',
+    description: 'URL to redirect the signer to after signing is complete',
+  },
+  {
+    displayName: 'Client User ID',
+    name: 'clientUserId',
+    type: 'string',
+    displayOptions: {
+      show: {
+        resource: ['envelope'],
+        operation: ['createFocusedView'],
+      },
+    },
+    default: '',
+    placeholder: 'user-123',
+    description: 'Unique identifier for this embedded signing session (required for embedded flow)',
+  },
+  {
+    displayName: 'Frame Ancestors',
+    name: 'frameAncestors',
+    type: 'string',
+    displayOptions: {
+      show: {
+        resource: ['envelope'],
+        operation: ['createFocusedView'],
+      },
+    },
+    default: '*',
+    placeholder: 'https://yourapp.com',
+    description: 'Allowed iframe ancestor origins (comma-separated). Use * to allow all.',
+  },
+  {
+    displayName: 'Message Origins',
+    name: 'messageOrigins',
+    type: 'string',
+    displayOptions: {
+      show: {
+        resource: ['envelope'],
+        operation: ['createFocusedView'],
+      },
+    },
+    default: '*',
+    placeholder: 'https://yourapp.com',
+    description: 'Allowed postMessage origins (comma-separated). Use * to allow all.',
   },
 ];

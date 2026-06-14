@@ -354,6 +354,43 @@ async function handleEnvelopeCreate(
     }
   }
 
+  // Add WhatsApp delivery notification if specified
+  const whatsAppDeliveryData = additionalOptions.whatsAppDelivery as IDataObject | undefined;
+  if (whatsAppDeliveryData?.whatsApp) {
+    const whatsAppData = Array.isArray(whatsAppDeliveryData.whatsApp)
+      ? (whatsAppDeliveryData.whatsApp as IDataObject[])[0]
+      : (whatsAppDeliveryData.whatsApp as IDataObject);
+    if (whatsAppData && whatsAppData.phoneNumber) {
+      validateField('WhatsApp Phone Number', whatsAppData.phoneNumber as string, 'required');
+      const existingNotifications = (signer.additionalNotifications as IDataObject[]) || [];
+      existingNotifications.push({
+        secondaryDeliveryMethod: 'WhatsApp',
+        phoneNumber: {
+          countryCode: (whatsAppData.countryCode as string) || '1',
+          number: whatsAppData.phoneNumber as string,
+        },
+      });
+      signer.additionalNotifications = existingNotifications;
+    }
+  }
+
+  // Add conditional routing rules (workflow steps) if specified
+  const routingRulesData = additionalOptions.routingRules as IDataObject | undefined;
+  if (routingRulesData?.rules) {
+    const rulesList = routingRulesData.rules as IDataObject[];
+    if (rulesList.length > 0) {
+      envelope.workflow = {
+        workflowSteps: rulesList.map((r) => ({
+          action: 'pause',
+          triggerOnItem: 'routing_order',
+          itemId: String(r.routingOrder || 1),
+          status: 'pending',
+          ...(r.conditionExpression ? { triggerCondition: r.conditionExpression } : {}),
+        })),
+      };
+    }
+  }
+
   // Add custom fields if specified
   const customFieldsData = additionalOptions.customFields as IDataObject | undefined;
   if (customFieldsData?.textFields) {
@@ -4415,6 +4452,142 @@ async function handleTemplateBulkRecipientDelete(
 }
 
 
+// ==========================================================================
+// Organization Handlers
+// ==========================================================================
+
+async function handleOrganizationGetAll(ctx: IExecuteFunctions): Promise<IDataObject> {
+  return await docuSignApiRequest.call(ctx, 'GET', '/organizations');
+}
+
+async function handleOrganizationGet(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const organizationId = ctx.getNodeParameter('organizationId', itemIndex) as string;
+  validateField('Organization ID', organizationId, 'required');
+  return await docuSignApiRequest.call(ctx, 'GET', `/organizations/${organizationId}`);
+}
+
+// ==========================================================================
+// Envelope Focused View Handler
+// ==========================================================================
+
+async function handleEnvelopeCreateFocusedView(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  const signerEmail = ctx.getNodeParameter('signerEmail', itemIndex) as string;
+  const signerName = ctx.getNodeParameter('signerName', itemIndex) as string;
+  const returnUrl = ctx.getNodeParameter('returnUrl', itemIndex) as string;
+  const clientUserId = ctx.getNodeParameter('clientUserId', itemIndex, '') as string;
+  const frameAncestors = ctx.getNodeParameter('frameAncestors', itemIndex, '*') as string;
+  const messageOrigins = ctx.getNodeParameter('messageOrigins', itemIndex, '*') as string;
+
+  validateField('Envelope ID', envelopeId, 'uuid');
+  validateField('Signer Email', signerEmail, 'email');
+  validateField('Signer Name', signerName, 'required');
+  validateField('Return URL', returnUrl, 'url');
+
+  const body: IDataObject = {
+    email: signerEmail,
+    userName: signerName,
+    returnUrl,
+    authenticationMethod: 'None',
+    frameAncestors: frameAncestors
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean),
+    messageOrigins: messageOrigins
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean),
+  };
+
+  if (clientUserId) {
+    body.clientUserId = clientUserId;
+  }
+
+  return await docuSignApiRequest.call(
+    ctx,
+    'POST',
+    `/envelopes/${envelopeId}/views/recipient`,
+    body,
+  );
+}
+
+// ==========================================================================
+// Connect Config Pause/Resume Handlers
+// ==========================================================================
+
+async function handleConnectConfigPause(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const connectId = ctx.getNodeParameter('connectId', itemIndex) as string;
+  validateField('Connect ID', connectId, 'required');
+  return await docuSignApiRequest.call(ctx, 'PUT', `/connect/${connectId}`, {
+    allowEnvelopePublish: 'false',
+  });
+}
+
+async function handleConnectConfigResume(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const connectId = ctx.getNodeParameter('connectId', itemIndex) as string;
+  validateField('Connect ID', connectId, 'required');
+  return await docuSignApiRequest.call(ctx, 'PUT', `/connect/${connectId}`, {
+    allowEnvelopePublish: 'true',
+  });
+}
+
+// ==========================================================================
+// Envelope Workflow Pause/Resume Handlers
+// ==========================================================================
+
+async function handleEnvelopeWorkflowPause(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  validateField('Envelope ID', envelopeId, 'uuid');
+  return await docuSignApiRequest.call(ctx, 'PUT', `/envelopes/${envelopeId}/workflow`, {
+    workflowStatus: 'paused',
+  });
+}
+
+async function handleEnvelopeWorkflowResume(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  validateField('Envelope ID', envelopeId, 'uuid');
+  return await docuSignApiRequest.call(ctx, 'PUT', `/envelopes/${envelopeId}/workflow`, {
+    workflowStatus: 'in_progress',
+  });
+}
+
+// ==========================================================================
+// ID Verification Evidence Handler
+// ==========================================================================
+
+async function handleIdVerificationGetEvidence(
+  ctx: IExecuteFunctions,
+  itemIndex: number,
+): Promise<IDataObject> {
+  const envelopeId = ctx.getNodeParameter('envelopeId', itemIndex) as string;
+  const recipientId = ctx.getNodeParameter('recipientId', itemIndex) as string;
+  validateField('Envelope ID', envelopeId, 'uuid');
+  validateField('Recipient ID', recipientId, 'required');
+  return await docuSignApiRequest.call(
+    ctx,
+    'GET',
+    `/envelopes/${envelopeId}/recipients/${recipientId}/identity_verification`,
+  );
+}
+
 // Main Node Class
 // ============================================================================
 
@@ -4567,6 +4740,10 @@ export class DocuSign implements INodeType {
 
             case 'createEditView':
               responseData = await handleEnvelopeCreateEditView(this, i);
+              break;
+
+            case 'createFocusedView':
+              responseData = await handleEnvelopeCreateFocusedView(this, i);
               break;
 
             default:
@@ -4969,6 +5146,14 @@ export class DocuSign implements INodeType {
               responseData = await handleConnectConfigDelete(this, i);
               break;
 
+            case 'pause':
+              responseData = await handleConnectConfigPause(this, i);
+              break;
+
+            case 'resume':
+              responseData = await handleConnectConfigResume(this, i);
+              break;
+
             default:
               throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
           }
@@ -5085,6 +5270,14 @@ export class DocuSign implements INodeType {
               responseData = await handleScheduledRoutingDelete(this, i);
               break;
 
+            case 'pauseWorkflow':
+              responseData = await handleEnvelopeWorkflowPause(this, i);
+              break;
+
+            case 'resumeWorkflow':
+              responseData = await handleEnvelopeWorkflowResume(this, i);
+              break;
+
             default:
               throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
           }
@@ -5119,6 +5312,10 @@ export class DocuSign implements INodeType {
           switch (operation) {
             case 'getWorkflows':
               responseData = await handleIdVerificationGetWorkflows(this);
+              break;
+
+            case 'getEvidence':
+              responseData = await handleIdVerificationGetEvidence(this, i);
               break;
 
             default:
@@ -5672,6 +5869,17 @@ export class DocuSign implements INodeType {
               throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
           }
 
+        } else if (resource === 'organization') {
+          switch (operation) {
+            case 'getAll':
+              responseData = await handleOrganizationGetAll(this);
+              break;
+            case 'get':
+              responseData = await handleOrganizationGet(this, i);
+              break;
+            default:
+              throw new NodeApiError(this.getNode(), {}, { message: `Unknown operation: ${operation}` });
+          }
         } else {
           throw new NodeApiError(
             this.getNode(),

@@ -1,7 +1,7 @@
 {
   "name": "n8n-nodes-docusign-esign",
-  "version": "1.0.0",
-  "description": "n8n community node for DocuSign eSignature - send documents for signature and manage envelopes",
+  "version": "2.0.0",
+  "description": "n8n community node for DocuSign — eSignature, Web Forms, Monitor, Click, Maestro, Navigator, and Admin APIs",
   "keywords": [
     "n8n-community-node-package",
     "n8n",
@@ -11,7 +11,16 @@
     "envelope",
     "documents",
     "contracts",
-    "signing"
+    "signing",
+    "webforms",
+    "clickwrap",
+    "maestro",
+    "monitor",
+    "navigator",
+    "admin",
+    "workflow-automation",
+    "agreement",
+    "click-to-sign"
   ],
   "license": "MIT",
   "homepage": "https://github.com/janmaaarc/n8n-nodes-docusign-esign",
@@ -44,11 +53,25 @@
     "n8nNodesApiVersion": 1,
     "credentials": [
       "dist/credentials/DocuSignApi.credentials.js",
-      "dist/credentials/DocuSignOAuth2Api.credentials.js"
+      "dist/credentials/DocuSignOAuth2Api.credentials.js",
+      "dist/credentials/DocuSignWebFormsApi.credentials.js",
+      "dist/credentials/DocuSignMonitorApi.credentials.js",
+      "dist/credentials/DocuSignClickApi.credentials.js",
+      "dist/credentials/DocuSignMaestroApi.credentials.js",
+      "dist/credentials/DocuSignNavigatorApi.credentials.js",
+      "dist/credentials/DocuSignAdminApi.credentials.js"
     ],
     "nodes": [
       "dist/nodes/DocuSign/DocuSign.node.js",
-      "dist/nodes/DocuSign/DocuSignTrigger.node.js"
+      "dist/nodes/DocuSign/DocuSignTrigger.node.js",
+      "dist/nodes/DocuSignWebForms/DocuSignWebForms.node.js",
+      "dist/nodes/DocuSignMonitor/DocuSignMonitor.node.js",
+      "dist/nodes/DocuSignClick/DocuSignClick.node.js",
+      "dist/nodes/DocuSignClick/DocuSignClickTrigger.node.js",
+      "dist/nodes/DocuSignMaestro/DocuSignMaestro.node.js",
+      "dist/nodes/DocuSignMaestro/DocuSignMaestroTrigger.node.js",
+      "dist/nodes/DocuSignNavigator/DocuSignNavigator.node.js",
+      "dist/nodes/DocuSignAdmin/DocuSignAdmin.node.js"
     ]
   },
   "devDependencies": {
